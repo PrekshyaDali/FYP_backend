@@ -20,7 +20,8 @@ mongoose
     console.log("server is connected to port 3001 and connected to mongodb");
   })
   .catch((error) => {
-    comsole.log("unable to connect to mongodb");
+    console.log(error);
+    console.log("unable to connect to mongodb");
   });
 
 //middleware
@@ -55,7 +56,7 @@ app.post("/register", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({
       email,
-      role: "admin",
+      role: "user",
       firstname: firstName,
       lastname: lastName,
       password: hashedPassword,
@@ -69,7 +70,7 @@ app.post("/register", async (req, res) => {
 });
 
 //get registered users
-app.get("/register", async (req, res) => {
+app.get("/profile", async (req, res) => {
   try {
     const users = await User.find();
     res.status(201).json({ users });
@@ -93,21 +94,11 @@ app.post("/login", async (req, res) => {
     const token = jwt.sign({ userId: user._id, role: user.role }, SECRET_KEY, {
       expiresIn: "1hr",
     });
-    res.json({ message: "Login successfull" });
+    return res.status(200).json({ message: "Login successfull", token });
   } catch (error) {
     res.status(500).json({ error: "Error logging in" });
   }
 });
-//another middleware function
-exports.restric = (role) => {
-  return (req, res, next) => {
-    const { role } = req.body;
-    if (role !== "admin") {
-      return res.status(401).json({ error: "You are not authorized" });
-    }
-    next();
-  };
-};
 
 // Create //post request
 // Read //get request
