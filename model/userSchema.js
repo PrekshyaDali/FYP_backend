@@ -33,7 +33,15 @@ const userSchema = new mongoose.Schema({
         enum: ['user', 'admin', 'instructor'],
         default: 'user'
     
-    }
+    },
+    verificationCode:{
+        type: String,
+        required: true
+    },
+    isVerified:{
+        type: Boolean,
+        default: false
+    },
     
 },
     {

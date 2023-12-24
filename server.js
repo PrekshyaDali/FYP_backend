@@ -5,6 +5,10 @@ const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("./model/userSchema");
+const sendOtp = require("./user");
+const sentOtp = require("./user");
+require("dotenv").config();
+
 
 const SECRET_KEY = "secretkey";
 //connect to express app
@@ -63,21 +67,15 @@ app.post("/register", async (req, res) => {
       contactnumber: contactNumber,
     });
     await newUser.save();
+    await sendOtp(req, res);
+    console.log(sentOtp)
+
     res.status(201).json({ message: "User created Succesfully" });
   } catch (error) {
     res.status(500).json({ error });
   }
 });
 
-//get registered users
-app.get("/profile", async (req, res) => {
-  try {
-    const users = await User.find();
-    res.status(201).json({ users });
-  } catch (error) {
-    res.status(500).json({ error: "Unable to get users" });
-  }
-});
 
 //get Login
 app.post("/login", async (req, res) => {
@@ -99,6 +97,15 @@ app.post("/login", async (req, res) => {
     res.status(500).json({ error: "Error logging in" });
   }
 });
+
+//send otp
+
+app.post("/sendotp", sendOtp);
+
+
+
+
+
 
 // Create //post request
 // Read //get request
