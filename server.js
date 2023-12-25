@@ -6,7 +6,8 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("./model/userSchema");
 const sendOtp = require("./user");
-const sentOtp = require("./user");
+const verifyOtp = require("./Emailverify");
+const sendEmail = require("./email.utils");
 require("dotenv").config();
 
 
@@ -67,8 +68,7 @@ app.post("/register", async (req, res) => {
       contactnumber: contactNumber,
     });
     await newUser.save();
-    await sendOtp(req, res);
-    console.log(sentOtp)
+   
 
     res.status(201).json({ message: "User created Succesfully" });
   } catch (error) {
@@ -101,6 +101,7 @@ app.post("/login", async (req, res) => {
 //send otp
 
 app.post("/sendotp", sendOtp);
+app.post("/verifyotp", verifyOtp);
 
 
 

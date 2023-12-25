@@ -12,9 +12,6 @@ let transporter = nodemailer.createTransport({
   },
 });
     
-
-
-
 const sendEmail = async (otp, subject, text, to) => {
     try{
         const mailOptions = {
@@ -27,6 +24,7 @@ const sendEmail = async (otp, subject, text, to) => {
             <p>Your otp is ${otp}</p>
 
             `
+            
 
         };
         const result = await transporter.sendMail(mailOptions);
@@ -34,6 +32,9 @@ const sendEmail = async (otp, subject, text, to) => {
         }
         catch(error){
             console.log(error);
+            res.status(400).json({
+                message: "Error while sending email"
+            })
         }
 
         
