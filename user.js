@@ -19,7 +19,7 @@ const sentOtp = async (req, res) => {
     );
     res.status(200).json({
       message: "Otp has been sent to your email",
-      user: updatedUser,
+      // user: updatedUser,
     });
   } catch (error) {
     console.log(error);
