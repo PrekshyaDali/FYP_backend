@@ -45,7 +45,8 @@ const userSchema = new mongoose.Schema({
     },
     link:{
         type: String,
-        required: true
+        required: true,
+        default: 'default'
     }
     
 },

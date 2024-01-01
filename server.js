@@ -18,7 +18,7 @@ const app = express();
 
 //connect to mongodb
 const dbURI =
-  "mongodb+srv://prekshyashrestha0:Prekshya123@cluster30.3wueix0.mongodb.net/Usersdb?retryWrites=true&w=majority";
+  "mongodb+srv://prekshyashrestha0:Prekshya123@cluster30.3wueix0.mongodb.net/DriveSync?retryWrites=true&w=majority";
 mongoose
   .connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
@@ -57,7 +57,7 @@ app.post("/register", async (req, res) => {
         message: "Invalid Email ",
       });
     }
-     const contactNumberRegex = /^[6-9]\d{9}$/;
+    const contactNumberRegex = /^[6-9]\d{9}$/;
     if (!contactNumberRegex.test(contactNumber)) {
       return res.status(401).json({
         success: false,
@@ -72,7 +72,7 @@ app.post("/register", async (req, res) => {
           "Password must contain atleast one uppercase, one lowercase, one digit and one special character",
       });
     }
-   
+
     const user = await User.findOne({ email });
     console.log(user);
 
@@ -97,20 +97,11 @@ app.post("/register", async (req, res) => {
     res.status(201).json({ message: "User created Successfully" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Internal server error" });
+    res
+      .status(500)
+      .json({ error: "Error registering new user please try again." });
   }
 });
-
-const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
-  if (token == null) {
-    return res.sendStatus(401);
-  }
-
-  accessToken = token;
-  next();
-};
 
 app.post("/login", async (req, res) => {
   try {
@@ -123,43 +114,29 @@ app.post("/login", async (req, res) => {
     const isVerified = user.isVerified;
     if (!isVerified) {
       return res
-        .status(401)
+        .status(404)
         .json({ error: "User not verified, Please verify your email" });
+        
     }
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({ error: "Password not valid" });
     }
-    const userPayload = { email: user.email };
+    const userPayload = { email: user.email, role: user.role };
 
     const accessToken = jwt.sign(userPayload, process.env.ACCESS_TOKEN_SECRET);
-    // res.json({ accessToken: accessToken });
 
-    return res.status(200).json({ message: "Login successfull", accessToken });
+    return res
+      .status(200)
+      .json({
+        message: "Login successfull",
+        email: user.email,
+        role: user.role,
+        accessToken,
+      });
   } catch (error) {
     res.status(500).json({ error: "Error logging in" });
   }
-});
-
-// app.get("/login", authenticateToken, async (req, res) => {
-//   try {
-//     const user = await User.findOne({ email: req.userPayload.email });
-//     res.json(user); // Return only the user object
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: "Error fetching user data" });
-//   }
-// });
-app.post("/profile", authenticateToken, async (req, res) => {
-  jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, (err, authdata) => {
-    if (err) {
-      return res.send({ result: "INvalid token" });
-    }
-    res.json({
-      message: "profile  accessed",
-      authdata,
-    });
-  });
 });
 
 app.post("/sendotp", sendOtp);
