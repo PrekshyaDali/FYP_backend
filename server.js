@@ -34,9 +34,51 @@ mongoose
 app.use(bodyParser.json());
 app.use(cors());
 
+
+const checkAdmin = async ()=>{
+  try {
+    const adminExists = await User.findOne({role: "admin"});
+    if(adminExists) {
+      console.log("Admin already exists");
+     return;
+    }
+    if(!adminExists){
+      const hashedPassword = await bcrypt.hash("admin123", 10);
+      const newUser = new User({
+        email: "admin@admin.com",
+        role: "admin",
+        firstname: "admin",
+        lastname: "admin",
+        password: hashedPassword,
+        contactnumber: "1234567890",
+        isVerified: true,
+      });
+    
+      const created =  await newUser.save();
+      console.log(created);
+    }
+    res.status(201).json({ message: "Admin created Successfully" });
+
+  } catch (error) {
+    console.log(error);
+    
+  }
+}
+
+checkAdmin()
+
+
+
+
+
+
 //routes
 //User Registration
 //Post register
+
+
+
+
 app.post("/register", async (req, res) => {
   try {
     console.log(req.body);
