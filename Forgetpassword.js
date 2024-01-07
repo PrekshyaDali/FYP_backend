@@ -12,6 +12,7 @@ const ForgetPassword = async (req, res) => {
         { link: link },
         { new: true }
       );
+      console.log(updatedUser);
       if (!user) {
         return res.status(400).json({
           message: "User not found",
