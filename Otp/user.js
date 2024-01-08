@@ -1,4 +1,4 @@
-const User = require("./model/userSchema");
+const User = require("../model/userSchema");
 const sendEmail = require("./email.utils");
 
 const sentOtp = async (req, res) => {
@@ -19,7 +19,7 @@ const sentOtp = async (req, res) => {
     );
     res.status(200).json({
       message: "Otp has been sent to your email",
-      user: updatedUser,
+      // user: updatedUser,
     });
   } catch (error) {
     console.log(error);
@@ -30,4 +30,3 @@ const sentOtp = async (req, res) => {
 };
 
 module.exports = sentOtp;
-

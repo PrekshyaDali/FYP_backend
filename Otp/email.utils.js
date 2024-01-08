@@ -39,4 +39,7 @@ const sendEmail = async (otp, subject, text, to) => {
 
         
     }
-    module.exports = sendEmail
+
+
+   
+    module.exports = sendEmail;
