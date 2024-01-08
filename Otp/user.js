@@ -1,4 +1,4 @@
-const User = require("./model/userSchema");
+const User = require("../model/userSchema");
 const sendEmail = require("./email.utils");
 
 const sentOtp = async (req, res) => {
@@ -30,4 +30,3 @@ const sentOtp = async (req, res) => {
 };
 
 module.exports = sentOtp;
-

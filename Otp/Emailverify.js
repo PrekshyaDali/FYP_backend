@@ -1,8 +1,8 @@
-const User = require("./model/userSchema");
+const User = require("../model/userSchema");
 const sendEmail = require("./email.utils");
 
 const verifyOtp = async (req, res) => {
-    console.log(req.body);
+  console.log(req.body);
   try {
     const { email, verificationCode } = req.body;
     // console.log(email, verificationCode);

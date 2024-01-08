@@ -5,11 +5,12 @@ const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("./model/userSchema");
-const sendOtp = require("./user");
-const verifyOtp = require("./Emailverify");
-const sendEmail = require("./email.utils");
+const sendOtp = require("./Otp/user");
+const verifyOtp = require("./Otp/Emailverify");
+const sendEmail = require("./Otp/email.utils");
 sendResetLink = require("./reset.utils");
 const ForgetPassword = require("./Forgetpassword");
+const SendPassword = require("./Instructor/SendPassword.js");
 require("dotenv").config();
 
 const SECRET_KEY = "secretkey";
@@ -34,15 +35,14 @@ mongoose
 app.use(bodyParser.json());
 app.use(cors());
 
-
-const checkAdmin = async ()=>{
+const checkAdmin = async () => {
   try {
-    const adminExists = await User.findOne({role: "admin"});
-    if(adminExists) {
+    const adminExists = await User.findOne({ role: "admin" });
+    if (adminExists) {
       console.log("Admin already exists");
-     return;
+      return;
     }
-    if(!adminExists){
+    if (!adminExists) {
       const hashedPassword = await bcrypt.hash("admin123", 10);
       const newUser = new User({
         email: "admin@admin.com",
@@ -53,31 +53,21 @@ const checkAdmin = async ()=>{
         contactnumber: "1234567890",
         isVerified: true,
       });
-    
-      const created =  await newUser.save();
+
+      const created = await newUser.save();
       console.log(created);
     }
     res.status(201).json({ message: "Admin created Successfully" });
-
   } catch (error) {
     console.log(error);
-    
   }
-}
+};
 
-checkAdmin()
-
-
-
-
-
+checkAdmin();
 
 //routes
 //User Registration
 //Post register
-
-
-
 
 app.post("/register", async (req, res) => {
   try {
@@ -145,7 +135,6 @@ app.post("/register", async (req, res) => {
   }
 });
 
-
 app.post("/registerInstructor", async (req, res) => {
   try {
     console.log(req.body);
@@ -201,7 +190,6 @@ app.post("/registerInstructor", async (req, res) => {
       password: hashedPassword,
       contactnumber: contactNumber,
       isVerified: true,
-
     });
     await newUser.save();
 
@@ -213,18 +201,6 @@ app.post("/registerInstructor", async (req, res) => {
       .json({ error: "Error registering new user please try again." });
   }
 });
-
-
-
-
-
-
-
-
-
-
-
-
 
 app.post("/login", async (req, res) => {
   try {
@@ -239,7 +215,6 @@ app.post("/login", async (req, res) => {
       return res
         .status(404)
         .json({ error: "User not verified, Please verify your email" });
-        
     }
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
@@ -249,14 +224,12 @@ app.post("/login", async (req, res) => {
 
     const accessToken = jwt.sign(userPayload, process.env.ACCESS_TOKEN_SECRET);
 
-    return res
-      .status(200)
-      .json({
-        message: "Login successfull",
-        email: user.email,
-        role: user.role,
-        accessToken,
-      });
+    return res.status(200).json({
+      message: "Login successfull",
+      email: user.email,
+      role: user.role,
+      accessToken,
+    });
   } catch (error) {
     res.status(500).json({ error: "Error logging in" });
   }
@@ -265,6 +238,7 @@ app.post("/login", async (req, res) => {
 app.post("/sendotp", sendOtp);
 app.post("/verifyotp", verifyOtp);
 app.post("/ForgetPassword", ForgetPassword);
+app.post("/SendPassword", SendPassword);
 
 // Create //post request
 // Read //get request
