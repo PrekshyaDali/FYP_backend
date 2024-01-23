@@ -11,6 +11,8 @@ const sendEmail = require("./Otp/email.utils");
 sendResetLink = require("./reset.utils");
 const ForgetPassword = require("./Forgetpassword");
 const SendPassword = require("./Instructor/SendPassword.js");
+const DashboardCount = require("./model/DashboardCount/DashboardCount.js");
+const Search = require("./model/Search.js");
 require("dotenv").config();
 
 const SECRET_KEY = "secretkey";
@@ -134,6 +136,33 @@ app.post("/register", async (req, res) => {
       .json({ error: "Error registering new user please try again." });
   }
 });
+app.get("/register", async (req, res) => {
+  try {
+    const { firstname, lastname, contactnumber, email } = req.query;
+
+    // Use findOne instead of find if you expect only one result
+    const user = await User.findOne({
+      firstname,
+      lastname,
+      contactnumber,
+      email,
+    });
+
+    if (!user) {
+      // If no user is found, return a 404 status
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // If user is found, return it as a JSON response
+    res.status(200).json(user);
+  } catch (error) {
+    console.log(error);
+    // Handle other errors with a 500 status
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+
 
 app.post("/registerInstructor", async (req, res) => {
   try {
@@ -202,6 +231,14 @@ app.post("/registerInstructor", async (req, res) => {
   }
 });
 
+
+
+
+
+
+
+
+
 app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -235,10 +272,22 @@ app.post("/login", async (req, res) => {
   }
 });
 
+app.get("/users", async (req, res) => {
+  const users = await User.find(
+    { role: "user" },
+    { email: 1, firstname: 1, lastname: 1, contactnumber: 1, _id: 1 }
+  );
+
+  res.json(users);
+});
+
 app.post("/sendotp", sendOtp);
 app.post("/verifyotp", verifyOtp);
 app.post("/ForgetPassword", ForgetPassword);
 app.post("/SendPassword", SendPassword);
+app.get("/DashboardCount", DashboardCount);
+app.post("/Search", Search);
+
 
 // Create //post request
 // Read //get request

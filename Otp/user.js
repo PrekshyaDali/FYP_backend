@@ -29,4 +29,12 @@ const sentOtp = async (req, res) => {
   }
 };
 
+
+
+
+
+
+
+
+
 module.exports = sentOtp;
