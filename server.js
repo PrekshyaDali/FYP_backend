@@ -13,6 +13,7 @@ const ForgetPassword = require("./Forgetpassword");
 const SendPassword = require("./Instructor/SendPassword.js");
 const DashboardCount = require("./model/DashboardCount/DashboardCount.js");
 const Search = require("./model/Search.js");
+const Courses = require("./model/Courses.js");
 require("dotenv").config();
 
 const SECRET_KEY = "secretkey";
@@ -287,6 +288,7 @@ app.post("/ForgetPassword", ForgetPassword);
 app.post("/SendPassword", SendPassword);
 app.get("/DashboardCount", DashboardCount);
 app.post("/Search", Search);
+app.post("/Courses",Courses)
 
 
 // Create //post request
