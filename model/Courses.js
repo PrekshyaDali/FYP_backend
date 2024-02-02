@@ -3,14 +3,19 @@ const mongoose = require("mongoose");
 
 const Courses = async (req, res) => {
   const CourseData = req.body;
+
   try {
-    if (!CourseData || CourseData.length < 0) {
-      res.status(201).json({ success: false, message: "There is no Courses " });
+    if (!Array.isArray(CourseData.title) || CourseData.title.length === 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "There are no courses." });
     }
 
-    const CoursesPromises = CourseData.map(async ({ title, description }) => {
+    const CoursesPromises = CourseData.title.map(async (title, index) => {
+      const description = CourseData.description[index] || ""; // Ensure description is available
+
       if (!title || !description) {
-        res.status(201).json({
+        return res.status(400).json({
           success: false,
           message: "All fields are required for each course",
         });
@@ -20,11 +25,14 @@ const Courses = async (req, res) => {
         title,
         description,
       });
+
       return newCourse.save();
     });
+
     const createdCourse = await Promise.all(CoursesPromises);
+
     res.status(201).json({
-      message: "Created Courses Successsfully",
+      message: "Created Courses Successfully",
       createdCourse,
     });
   } catch (error) {
