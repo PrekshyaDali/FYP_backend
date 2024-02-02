@@ -5,12 +5,19 @@ const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("./model/userSchema");
+const Course = require("./model/CourseSchema");
 const sendOtp = require("./Otp/user");
 const verifyOtp = require("./Otp/Emailverify");
 const sendEmail = require("./Otp/email.utils");
 sendResetLink = require("./reset.utils");
 const ForgetPassword = require("./Forgetpassword");
 const SendPassword = require("./Instructor/SendPassword.js");
+const DashboardCount = require("./model/DashboardCount/DashboardCount.js");
+const Search = require("./model/Search.js");
+const Courses = require("./model/Courses.js");
+const AuthGuard = require("./middleware");
+const multer = require("multer");
+const addCourses = require ("./model/Addcourses.js");
 require("dotenv").config();
 
 const SECRET_KEY = "secretkey";
@@ -134,6 +141,31 @@ app.post("/register", async (req, res) => {
       .json({ error: "Error registering new user please try again." });
   }
 });
+app.get("/register", async (req, res) => {
+  try {
+    const { firstname, lastname, contactnumber, email } = req.query;
+
+    // Use findOne instead of find if you expect only one result
+    const user = await User.findOne({
+      firstname,
+      lastname,
+      contactnumber,
+      email,
+    });
+
+    if (!user) {
+      // If no user is found, return a 404 status
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // If user is found, return it as a JSON response
+    res.status(200).json(user);
+  } catch (error) {
+    console.log(error);
+    // Handle other errors with a 500 status
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
 
 app.post("/registerInstructor", async (req, res) => {
   try {
@@ -220,9 +252,10 @@ app.post("/login", async (req, res) => {
     if (!isPasswordValid) {
       return res.status(401).json({ error: "Password not valid" });
     }
-    const userPayload = { email: user.email, role: user.role };
+    const userPayload = { email: user.email, role: user.role, id: user._id };
 
     const accessToken = jwt.sign(userPayload, process.env.ACCESS_TOKEN_SECRET);
+    // console.log(accessToken);
 
     return res.status(200).json({
       message: "Login successfull",
@@ -235,10 +268,101 @@ app.post("/login", async (req, res) => {
   }
 });
 
+app.get("/users", async (req, res) => {
+  const users = await User.find(
+    { role: "user" },
+    { email: 1, firstname: 1, lastname: 1, contactnumber: 1, _id: 1 }
+  );
+
+  res.json(users);
+});
+
+app.get("/getUsers", AuthGuard("user"), async (req, res) => {
+  try {
+      const userId = req.user.id;
+      console.log(req.user);
+    const user = await User.findById(userId).select("-password");
+    return res.status(200).json({
+      message: "User found",
+      user,
+    
+    })
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Error getting user" });
+  }
+  // res.json(users);
+});
+
+app.get("/courses", async (req, res) => {
+  const courses = await Course.find();
+  res.json(courses);
+});
+
+app.get("/course/:id", async (req, res) => {
+  const { id } = req.params;
+  const course = await Course.findById(id);
+  res.json(course);
+});
+
+
+app.delete("/user/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findByIdAndDelete(id);
+    res.status(200).json({ message: "User deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Error deleting user" });
+    
+  }
+  
+});
+
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, "uploads/"); // Save files to the 'uploads' folder
+//   },
+//   filename: function (req, file, cb) {
+//     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+//     cb(
+//       null,
+//       file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname)
+//     );
+//   },
+// });
+
+// const upload = multer({ storage: storage });
+
+// // Serve static files from the 'uploads' folder
+// app.use("/uploads", express.static("uploads"));
+
+// // Handle POST request to upload an image
+// app.post("/upload", upload.single("image"), (req, res) => {
+//   try {
+//     const filePath = req.file.path;
+//     // Handle the file path as needed (save to database, send a response, etc.)
+//     res.json({ filePath });
+//     console.log(filePath);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: "Error uploading the image" });
+//   }
+// });
+
+
+
+
+
+
 app.post("/sendotp", sendOtp);
 app.post("/verifyotp", verifyOtp);
 app.post("/ForgetPassword", ForgetPassword);
 app.post("/SendPassword", SendPassword);
+app.get("/DashboardCount", DashboardCount);
+app.post("/Search", Search);
+app.post("/Courses", Courses)
+app.post("/addCourses", addCourses)
 
 // Create //post request
 // Read //get request
