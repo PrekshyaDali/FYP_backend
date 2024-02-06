@@ -14,10 +14,10 @@ const ForgetPassword = require("./Forgetpassword");
 const SendPassword = require("./Instructor/SendPassword.js");
 const DashboardCount = require("./model/DashboardCount/DashboardCount.js");
 const Search = require("./model/Search.js");
-const Courses = require("./model/Courses.js");
+
 const AuthGuard = require("./middleware");
 const multer = require("multer");
-const addCourses = require ("./model/Addcourses.js");
+const addCourses = require("./model/Addcourses.js");
 require("dotenv").config();
 
 const SECRET_KEY = "secretkey";
@@ -277,22 +277,41 @@ app.get("/users", async (req, res) => {
   res.json(users);
 });
 
+// app.get("/getUsers", AuthGuard("user"), async (req, res) => {
+//   try {
+//       const userId = req.user.id;
+//       console.log(req.user);
+//     const user = await User.findById(userId).select("-password");
+//     return res.status(200).json({
+//       message: "User found",
+//       user,
+
+//     })
+
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json({ error: "Error getting user" });
+//   }
+//   // res.json(users);
+// });
 app.get("/getUsers", AuthGuard("user"), async (req, res) => {
   try {
-      const userId = req.user.id;
-      console.log(req.user);
-    const user = await User.findById(userId).select("-password");
+    const userEmail = req.user.email;
+
+    const user = await User.findOne({ email: userEmail }).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
     return res.status(200).json({
       message: "User found",
       user,
-    
-    })
-
+    });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json({ error: "Error getting user" });
   }
-  // res.json(users);
 });
 
 app.get("/courses", async (req, res) => {
@@ -306,7 +325,6 @@ app.get("/course/:id", async (req, res) => {
   res.json(course);
 });
 
-
 app.delete("/user/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -314,9 +332,7 @@ app.delete("/user/:id", async (req, res) => {
     res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: "Error deleting user" });
-    
   }
-  
 });
 
 // const storage = multer.diskStorage({
@@ -350,19 +366,14 @@ app.delete("/user/:id", async (req, res) => {
 //   }
 // });
 
-
-
-
-
-
 app.post("/sendotp", sendOtp);
 app.post("/verifyotp", verifyOtp);
 app.post("/ForgetPassword", ForgetPassword);
 app.post("/SendPassword", SendPassword);
 app.get("/DashboardCount", DashboardCount);
 app.post("/Search", Search);
-app.post("/Courses", Courses)
-app.post("/addCourses", addCourses)
+
+app.post("/addCourses", addCourses);
 
 // Create //post request
 // Read //get request
