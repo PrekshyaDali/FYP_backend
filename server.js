@@ -25,8 +25,10 @@ const SECRET_KEY = "secretkey";
 const app = express();
 
 //connect to mongodb
+
 const dbURI =
   "mongodb+srv://prekshyashrestha0:Prekshya123@cluster30.3wueix0.mongodb.net/DriveSync?retryWrites=true&w=majority";
+
 mongoose
   .connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
@@ -34,7 +36,6 @@ mongoose
     console.log("server is connected to port 3001 and connected to mongodb");
   })
   .catch((error) => {
-    console.log(error);
     console.log("unable to connect to mongodb");
   });
 
@@ -252,6 +253,7 @@ app.post("/login", async (req, res) => {
     if (!isPasswordValid) {
       return res.status(401).json({ error: "Password not valid" });
     }
+
     const userPayload = { email: user.email, role: user.role, id: user._id };
 
     const accessToken = jwt.sign(userPayload, process.env.ACCESS_TOKEN_SECRET);
@@ -261,6 +263,7 @@ app.post("/login", async (req, res) => {
       message: "Login successfull",
       email: user.email,
       role: user.role,
+      isFirstLogin: user.isFirstLogin,
       accessToken,
     });
   } catch (error) {
@@ -294,7 +297,7 @@ app.get("/users", async (req, res) => {
 //   }
 //   // res.json(users);
 // });
-app.get("/getUsers", AuthGuard("user"), async (req, res) => {
+app.get("/getUsers", AuthGuard(["user", "instructor", "admin"]), async (req, res) => {
   try {
     const userEmail = req.user.email;
 
@@ -311,6 +314,37 @@ app.get("/getUsers", AuthGuard("user"), async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error getting user" });
+  }
+});
+
+app.post("/getinstructors", AuthGuard(["user", "instructor", "admin"]), async (req, res) => {
+  try {
+    const instrutorEmail = req.user.email;
+    const user = await User.findOne({ email: instrutorEmail }).select(
+      "-password"
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "Instructor not found" });
+    }
+   
+    const password = req.body.password;
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    user.password = hashedPassword;
+  
+    user.isFirstLogin = true;
+    await user.save();
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Password changed successfully",
+        role: user.role,
+      });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error changing password" });
   }
 });
 
