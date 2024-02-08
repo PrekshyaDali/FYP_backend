@@ -280,6 +280,22 @@ app.get("/users", async (req, res) => {
   res.json(users);
 });
 
+app.get("/instructors", async (req, res) => {
+  const instructors = await User.find(
+    { role: "instructor" },
+    { email: 1, firstname: 1, lastname: 1, contactnumber: 1, _id: 1 }
+  );
+
+  res.json(instructors);
+});
+
+app.get("/users/:id", async (req, res) => {
+  const { id } = req.params;
+
+  const user = await User.findById(id).select("-password");
+  res.json(user);
+});
+
 // app.get("/getUsers", AuthGuard("user"), async (req, res) => {
 //   try {
 //       const userId = req.user.id;
@@ -297,60 +313,66 @@ app.get("/users", async (req, res) => {
 //   }
 //   // res.json(users);
 // });
-app.get("/getUsers", AuthGuard(["user", "instructor", "admin"]), async (req, res) => {
-  try {
-    const userEmail = req.user.email;
+app.get(
+  "/getUsers",
+  AuthGuard(["user", "instructor", "admin"]),
+  async (req, res) => {
+    try {
+      const userEmail = req.user.email;
 
-    const user = await User.findOne({ email: userEmail }).select("-password");
+      const user = await User.findOne({ email: userEmail }).select("-password");
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      return res.status(200).json({
+        message: "User found",
+        user,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Error getting user" });
     }
-
-    return res.status(200).json({
-      message: "User found",
-      user,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Error getting user" });
   }
-});
+);
 
-app.post("/getinstructors", AuthGuard(["user", "instructor", "admin"]), async (req, res) => {
-  try {
-    const instrutorEmail = req.user.email;
-    const user = await User.findOne({ email: instrutorEmail }).select(
-      "-password"
-    );
+app.post(
+  "/getinstructors",
+  AuthGuard(["user", "instructor", "admin"]),
+  async (req, res) => {
+    try {
+      const instrutorEmail = req.user.email;
+      const user = await User.findOne({ email: instrutorEmail }).select(
+        "-password"
+      );
 
-    if (!user) {
-      return res.status(404).json({ message: "Instructor not found" });
-    }
-   
-    const password = req.body.password;
-    if(!password){
-      return res.status(401).json({ message: "Password is required" });
-    }
-    const hashedPassword = await bcrypt.hash(password, 10);
+      if (!user) {
+        return res.status(404).json({ message: "Instructor not found" });
+      }
 
-    user.password = hashedPassword;
-  
-    user.isFirstLogin = true;
-    await user.save();
-    res
-      .status(200)
-      .json({
+      const password = req.body.password;
+      if (!password) {
+        return res.status(401).json({ message: "Password is required" });
+      }
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      user.password = hashedPassword;
+
+      user.isFirstLogin = true;
+      await user.save();
+      res.status(200).json({
         success: true,
         message: "Password changed successfully",
         role: user.role,
         isFirstLogin: user.isFirstLogin,
       });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Error changing password" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Error changing password" });
+    }
   }
-});
+);
 
 app.get("/courses", async (req, res) => {
   const courses = await Course.find();
