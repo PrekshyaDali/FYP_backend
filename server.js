@@ -329,6 +329,9 @@ app.post("/getinstructors", AuthGuard(["user", "instructor", "admin"]), async (r
     }
    
     const password = req.body.password;
+    if(!password){
+      return res.status(401).json({ message: "Password is required" });
+    }
     const hashedPassword = await bcrypt.hash(password, 10);
 
     user.password = hashedPassword;
@@ -341,6 +344,7 @@ app.post("/getinstructors", AuthGuard(["user", "instructor", "admin"]), async (r
         success: true,
         message: "Password changed successfully",
         role: user.role,
+        isFirstLogin: user.isFirstLogin,
       });
   } catch (error) {
     console.error(error);
