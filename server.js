@@ -43,7 +43,7 @@ mongoose
 app.use(bodyParser.json());
 app.use(cors());
 
-const checkAdmin = async () => {
+const checkAdmin = async () => { // check if the admin exists or not
   try {
     const adminExists = await User.findOne({ role: "admin" });
     if (adminExists) {
@@ -77,7 +77,7 @@ checkAdmin();
 //User Registration
 //Post register
 
-app.post("/register", async (req, res) => {
+app.post("/register", async (req, res) => { // register the users
   try {
     console.log(req.body);
     const { email, firstName, lastName, password, contactNumber } = req.body;
@@ -142,7 +142,7 @@ app.post("/register", async (req, res) => {
       .json({ error: "Error registering new user please try again." });
   }
 });
-app.get("/register", async (req, res) => {
+app.get("/register", async (req, res) => { // to get register  students
   try {
     const { firstname, lastname, contactnumber, email } = req.query;
 
@@ -168,7 +168,7 @@ app.get("/register", async (req, res) => {
   }
 });
 
-app.post("/registerInstructor", async (req, res) => {
+app.post("/registerInstructor", async (req, res) => { // to register instructor
   try {
     console.log(req.body);
     const { email, firstName, lastName, password, contactNumber } = req.body;
@@ -235,7 +235,7 @@ app.post("/registerInstructor", async (req, res) => {
   }
 });
 
-app.post("/login", async (req, res) => {
+app.post("/login", async (req, res) => { // to login
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
@@ -271,7 +271,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/users", async (req, res) => {
+app.get("/users", async (req, res) => { // to get the user list of admin student table
   const users = await User.find(
     { role: "user" },
     { email: 1, firstname: 1, lastname: 1, contactnumber: 1, _id: 1 }
@@ -280,20 +280,65 @@ app.get("/users", async (req, res) => {
   res.json(users);
 });
 
+app.get("/users/:id", async (req, res) => {
+  // to dispplay the information for edit  of admin student table
+  const { id } = req.params;
+  
+  const user = await User.findById(id).select("-password");
+  res.json(user);
+});
+
+app.put("/edit/:id", async (req, res) => {
+  const userId = req.params.id;
+  const allowedFields = ["firstname", "lastname", "email", "contactnumber"]; // Define allowed fields
+
+  try {
+    // Find the user by ID in the database
+    let user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Update only allowed fields present in the request body
+    allowedFields.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        user[field] = req.body[field];
+      }
+    });
+
+    // Save the updated user information to the database
+    user = await user.save();
+
+    // Return the updated user information in the response
+    res.json(user);
+  } catch (error) {
+    console.error("Failed to update user:", error);
+    res.status(500).json({ error: "Failed to update user" });
+  }
+});
+
+
+app.delete("/user/:id", async (req, res) => {
+  // for the delete user of admin student table
+  try {
+    const { id } = req.params;
+    const user = await User.findByIdAndDelete(id);
+    res.status(200).json({ message: "User deleted successfully" });
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: "Error deleting user" });
+  }
+});
+
 app.get("/instructors", async (req, res) => {
+  // to get the instructor list of admin instructor table
   const instructors = await User.find(
     { role: "instructor" },
     { email: 1, firstname: 1, lastname: 1, contactnumber: 1, _id: 1 }
   );
 
   res.json(instructors);
-});
-
-app.get("/users/:id", async (req, res) => {
-  const { id } = req.params;
-
-  const user = await User.findById(id).select("-password");
-  res.json(user);
 });
 
 // app.get("/getUsers", AuthGuard("user"), async (req, res) => {
@@ -313,7 +358,7 @@ app.get("/users/:id", async (req, res) => {
 //   }
 //   // res.json(users);
 // });
-app.get(
+app.get(  // to get the user details of user profile
   "/getUsers",
   AuthGuard(["user", "instructor", "admin"]),
   async (req, res) => {
@@ -337,7 +382,7 @@ app.get(
   }
 );
 
-app.post(
+app.post( // to get the instructor change thier password for their first login
   "/getinstructors",
   AuthGuard(["user", "instructor", "admin"]),
   async (req, res) => {
@@ -374,25 +419,15 @@ app.post(
   }
 );
 
-app.get("/courses", async (req, res) => {
+app.get("/courses", async (req, res) => { // to get the courses in the student course section
   const courses = await Course.find();
   res.json(courses);
 });
 
-app.get("/course/:id", async (req, res) => {
+app.get("/course/:id", async (req, res) => { // navigate to the course details page
   const { id } = req.params;
   const course = await Course.findById(id);
   res.json(course);
-});
-
-app.delete("/user/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const user = await User.findByIdAndDelete(id);
-    res.status(200).json({ message: "User deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ error: "Error deleting user" });
-  }
 });
 
 // const storage = multer.diskStorage({
