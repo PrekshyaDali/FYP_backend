@@ -18,11 +18,11 @@ const validateInput = (
   const numberRegex = /^\d+$/;
 
 
-  if (courseOverview.split(/\s+/).length > 100) {
+  if (courseOverview.split(/\s+/).length >= 100) {
     throw new Error("Course overview should not exceed 100 words.");
   }
 
-  if (courseDescription.length < 250) {
+  if (courseDescription.length <= 250) {
     throw new Error(
       "Course description should be at least 250 characters long."
     );

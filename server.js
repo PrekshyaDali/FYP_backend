@@ -14,6 +14,7 @@ const ForgetPassword = require("./Forgetpassword");
 const SendPassword = require("./Instructor/SendPassword.js");
 const DashboardCount = require("./model/DashboardCount/DashboardCount.js");
 const Search = require("./model/Search.js");
+const userEnrollment = require("./model/Enrollment.js");
 
 const AuthGuard = require("./middleware");
 const multer = require("multer");
@@ -43,7 +44,8 @@ mongoose
 app.use(bodyParser.json());
 app.use(cors());
 
-const checkAdmin = async () => { // check if the admin exists or not
+const checkAdmin = async () => {
+  // check if the admin exists or not
   try {
     const adminExists = await User.findOne({ role: "admin" });
     if (adminExists) {
@@ -77,7 +79,8 @@ checkAdmin();
 //User Registration
 //Post register
 
-app.post("/register", async (req, res) => { // register the users
+app.post("/register", async (req, res) => {
+  // register the users
   try {
     console.log(req.body);
     const { email, firstName, lastName, password, contactNumber } = req.body;
@@ -142,7 +145,8 @@ app.post("/register", async (req, res) => { // register the users
       .json({ error: "Error registering new user please try again." });
   }
 });
-app.get("/register", async (req, res) => { // to get register  students
+app.get("/register", async (req, res) => {
+  // to get register  students
   try {
     const { firstname, lastname, contactnumber, email } = req.query;
 
@@ -168,7 +172,8 @@ app.get("/register", async (req, res) => { // to get register  students
   }
 });
 
-app.post("/registerInstructor", async (req, res) => { // to register instructor
+app.post("/registerInstructor", async (req, res) => {
+  // to register instructor
   try {
     console.log(req.body);
     const { email, firstName, lastName, password, contactNumber } = req.body;
@@ -235,7 +240,8 @@ app.post("/registerInstructor", async (req, res) => { // to register instructor
   }
 });
 
-app.post("/login", async (req, res) => { // to login
+app.post("/login", async (req, res) => {
+  // to login
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
@@ -271,21 +277,22 @@ app.post("/login", async (req, res) => { // to login
   }
 });
 
-app.get("/users", async (req, res) => { // to get the user list of admin student table
+app.get("/users", async (req, res) => {
+  // to get the user list of admin student table
   const users = await User.find(
     { role: "user" },
     { email: 1, firstname: 1, lastname: 1, contactnumber: 1, _id: 1 }
   );
 
-  res.json(users);
+  return res.json(users);
 });
 
 app.get("/users/:id", async (req, res) => {
   // to dispplay the information for edit  of admin student table
   const { id } = req.params;
-  
+
   const user = await User.findById(id).select("-password");
-  res.json(user);
+  return res.json(user);
 });
 
 app.put("/edit/:id", async (req, res) => {
@@ -311,23 +318,22 @@ app.put("/edit/:id", async (req, res) => {
     user = await user.save();
 
     // Return the updated user information in the response
-    res.json(user);
+    return res.json(user); // Use `return` to ensure that no code executes after sending the response
   } catch (error) {
     console.error("Failed to update user:", error);
-    res.status(500).json({ error: "Failed to update user" });
+    return res.status(500).json({ error: "Failed to update user" });
   }
 });
-
 
 app.delete("/user/:id", async (req, res) => {
   // for the delete user of admin student table
   try {
     const { id } = req.params;
     const user = await User.findByIdAndDelete(id);
-    res.status(200).json({ message: "User deleted successfully" });
-    res.json(user);
+    return res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
-    res.status(500).json({ error: "Error deleting user" });
+    console.error("Error deleting user:", error);
+    return res.status(500).json({ error: "Error deleting user" });
   }
 });
 
@@ -338,27 +344,11 @@ app.get("/instructors", async (req, res) => {
     { email: 1, firstname: 1, lastname: 1, contactnumber: 1, _id: 1 }
   );
 
-  res.json(instructors);
+  return res.json(instructors);
 });
 
-// app.get("/getUsers", AuthGuard("user"), async (req, res) => {
-//   try {
-//       const userId = req.user.id;
-//       console.log(req.user);
-//     const user = await User.findById(userId).select("-password");
-//     return res.status(200).json({
-//       message: "User found",
-//       user,
-
-//     })
-
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({ error: "Error getting user" });
-//   }
-//   // res.json(users);
-// });
-app.get(  // to get the user details of user profile
+app.get(
+  // to get the user details of user profile
   "/getUsers",
   AuthGuard(["user", "instructor", "admin"]),
   async (req, res) => {
@@ -382,7 +372,8 @@ app.get(  // to get the user details of user profile
   }
 );
 
-app.post( // to get the instructor change thier password for their first login
+app.post(
+  // to get the instructor change thier password for their first login
   "/getinstructors",
   AuthGuard(["user", "instructor", "admin"]),
   async (req, res) => {
@@ -419,16 +410,27 @@ app.post( // to get the instructor change thier password for their first login
   }
 );
 
-app.get("/courses", async (req, res) => { // to get the courses in the student course section
+app.get("/courses", async (req, res) => {
+  // to get the courses in the student course section
   const courses = await Course.find();
   res.json(courses);
 });
 
-app.get("/course/:id", async (req, res) => { // navigate to the course details page
+app.get("/course/:id", async (req, res) => {
+  // navigate to the course details page
   const { id } = req.params;
   const course = await Course.findById(id);
   res.json(course);
 });
+
+app.use(express.urlencoded({ extended: true }));
+const upload = multer({ dest: "uploads/" });
+app.post("/upload", upload.single('image'), (req, res) => {
+  console.log(req.file);
+  console.log(req.body);
+  return res.json({ message: "File uploaded successfully" });
+})
+
 
 // const storage = multer.diskStorage({
 //   destination: function (req, file, cb) {
@@ -469,6 +471,7 @@ app.get("/DashboardCount", DashboardCount);
 app.post("/Search", Search);
 
 app.post("/addCourses", addCourses);
+app.post("/enrollment", userEnrollment);
 
 // Create //post request
 // Read //get request
