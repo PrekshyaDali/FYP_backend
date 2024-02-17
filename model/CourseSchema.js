@@ -37,10 +37,10 @@ const CourseSchema = new mongoose.Schema({
     required: true,
     enum: ["scooter", "bike", "car"],
   },
-  // image: {
-  //   type: String,
-  //   required: true,
-  // },
+  image: {
+    type: Object,
+    required: true,
+  },
 });
 
 const Course = mongoose.model("Course", CourseSchema);

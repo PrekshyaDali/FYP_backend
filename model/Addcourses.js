@@ -1,4 +1,4 @@
-// 
+//
 
 const Course = require("../model/CourseSchema");
 const mongoose = require("mongoose");
@@ -9,14 +9,12 @@ const validateInput = (
   courseDuration,
   price,
   type,
-  courseDescription
+  courseDescription,
+  image
 ) => {
-
   const priceRegex = /^\d+(\.\d{1,2})?$/;
 
-
   const numberRegex = /^\d+$/;
-
 
   if (courseOverview.split(/\s+/).length >= 100) {
     throw new Error("Course overview should not exceed 100 words.");
@@ -37,8 +35,9 @@ const validateInput = (
       "Invalid price format. Please provide a valid numeric value."
     );
   }
-
-
+  if (image === null) {
+    throw new Error("Please upload an image of the course.");
+  }
 };
 
 const AddCourses = async (req, res) => {
@@ -50,6 +49,7 @@ const AddCourses = async (req, res) => {
       price,
       type,
       courseDescription,
+      image,
     } = req.body;
 
     // Validate input
@@ -59,7 +59,8 @@ const AddCourses = async (req, res) => {
       courseDuration,
       price,
       type,
-      courseDescription
+      courseDescription,
+      image
     );
 
     const newCourse = new Course({
@@ -69,6 +70,7 @@ const AddCourses = async (req, res) => {
       price,
       type,
       courseDescription,
+      image,
     });
 
     const savedCourse = await newCourse.save();
