@@ -15,10 +15,12 @@ const SendPassword = require("./Instructor/SendPassword.js");
 const DashboardCount = require("./model/DashboardCount/DashboardCount.js");
 const Search = require("./model/Search.js");
 const userEnrollment = require("./model/Enrollment.js");
+const multer = require("multer");
 
 const AuthGuard = require("./middleware");
-const multer = require("multer");
+
 const addCourses = require("./model/Addcourses.js");
+const multerMiddleware = require("./model/multerMiddleware.js");
 require("dotenv").config();
 
 const SECRET_KEY = "secretkey";
@@ -424,44 +426,26 @@ app.get("/course/:id", async (req, res) => {
 });
 
 app.use(express.urlencoded({ extended: true }));
-const upload = multer({ dest: "uploads/" });
-app.post("/upload", upload.single('image'), (req, res) => {
+app.use(multerMiddleware);
+
+app.post("/upload", (req, res) => {
   console.log(req.file);
   console.log(req.body);
-  return res.json({ message: "File uploaded successfully" });
-})
 
-
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, "uploads/"); // Save files to the 'uploads' folder
-//   },
-//   filename: function (req, file, cb) {
-//     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-//     cb(
-//       null,
-//       file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname)
-//     );
-//   },
-// });
-
-// const upload = multer({ storage: storage });
-
-// // Serve static files from the 'uploads' folder
-// app.use("/uploads", express.static("uploads"));
-
-// // Handle POST request to upload an image
-// app.post("/upload", upload.single("image"), (req, res) => {
-//   try {
-//     const filePath = req.file.path;
-//     // Handle the file path as needed (save to database, send a response, etc.)
-//     res.json({ filePath });
-//     console.log(filePath);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: "Error uploading the image" });
-//   }
-// });
+  // Checking if req.file exists and its MIME type is jpg or png //Validation
+  if (
+    req.file &&
+    (req.file.mimetype === "image/jpeg" || req.file.mimetype === "image/png")
+  ) {
+    return res
+      .status(200)
+      .json({ success: true, message: "File uploaded successfully" });
+  } else {
+    return res
+      .status(400)
+      .json({ success: false, message: "Only JPG and PNG files are accepted" });
+  }
+});
 
 app.post("/sendotp", sendOtp);
 app.post("/verifyotp", verifyOtp);
