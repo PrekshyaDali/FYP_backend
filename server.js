@@ -16,16 +16,22 @@ const DashboardCount = require("./model/DashboardCount/DashboardCount.js");
 const Search = require("./model/Search.js");
 const userEnrollment = require("./model/Enrollment.js");
 const multer = require("multer");
-
+const fs = require("fs");
+const path = require("path");
 const AuthGuard = require("./middleware");
+const Editprofile = require("./model/EditProfile.js");
+
 
 const addCourses = require("./model/Addcourses.js");
 const multerMiddleware = require("./model/multerMiddleware.js");
+// const validationMiddleware = require("./model/validator.js");
 require("dotenv").config();
+// const routes  = require('./model/routes.js');
 
 const SECRET_KEY = "secretkey";
 //connect to express app
 const app = express();
+
 
 //connect to mongodb
 
@@ -147,32 +153,7 @@ app.post("/register", async (req, res) => {
       .json({ error: "Error registering new user please try again." });
   }
 });
-app.get("/register", async (req, res) => {
-  // to get register  students
-  try {
-    const { firstname, lastname, contactnumber, email } = req.query;
 
-    // Use findOne instead of find if you expect only one result
-    const user = await User.findOne({
-      firstname,
-      lastname,
-      contactnumber,
-      email,
-    });
-
-    if (!user) {
-      // If no user is found, return a 404 status
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    // If user is found, return it as a JSON response
-    res.status(200).json(user);
-  } catch (error) {
-    console.log(error);
-    // Handle other errors with a 500 status
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-});
 
 app.post("/registerInstructor", async (req, res) => {
   // to register instructor
@@ -437,15 +418,76 @@ app.post("/upload", (req, res) => {
     req.file &&
     (req.file.mimetype === "image/jpeg" || req.file.mimetype === "image/png")
   ) {
-    return res
-      .status(200)
-      .json({ success: true, message: "File uploaded successfully" });
+    return res.status(200).json({
+      success: true,
+      message: "File uploaded successfully",
+      url: `http://localhost:3001/uploads/${req.file.filename}`,
+    });
   } else {
     return res
       .status(400)
       .json({ success: false, message: "Only JPG and PNG files are accepted" });
   }
 });
+app.get("/uploads/:filename", async (req, res) => {
+  try {
+    const fileName = req.params.filename;
+    //find the file in the uploads folder
+    const file = await fs.promises.readFile(
+      path.join(__dirname, "uploads", fileName)
+    );
+    res.status(200).send(file);
+  } catch {
+    console.log(error);
+  }
+});
+
+// app.post("/edit/:id", validationMiddleware, async (req, res) => {
+//   const userId = req.params.id;
+//   const allowedFields = [
+//     "firstname",
+//     "lastname",
+//     "email",
+//     "contactnumber",
+//     "dob",
+//     "emergencycontactnumber",
+//     "address",
+//     "gender",
+//   ]; // Corrected field name
+
+//   try {
+//     // Find the user by ID in the database
+//     let user = await User.findById(userId);
+
+//     if (!user) {
+//       return res.status(404).json({ error: "User not found" });
+//     }
+
+//     // Update only allowed fields present in the request body
+//     allowedFields.forEach((field) => {
+//       if (req.body[field] !== undefined) {
+//         user[field] = req.body[field];
+//       }
+//     });
+
+//     // Save the updated user information to the database
+//     user = await user.save();
+
+//     // Return the updated user information in the response
+//     return res.json(user); // Use `return` to ensure that no code executes after sending the response
+//   } catch (error) {
+//     console.error("Failed to update user:", error);
+//     return res.status(500).json({ error: "Failed to update user" });
+//   }
+// });
+
+
+
+
+
+
+
+
 
 app.post("/sendotp", sendOtp);
 app.post("/verifyotp", verifyOtp);
@@ -453,7 +495,7 @@ app.post("/ForgetPassword", ForgetPassword);
 app.post("/SendPassword", SendPassword);
 app.get("/DashboardCount", DashboardCount);
 app.post("/Search", Search);
-
+app.put("/editProfile/:id", Editprofile);
 app.post("/addCourses", addCourses);
 app.post("/enrollment", userEnrollment);
 

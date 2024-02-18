@@ -1,68 +1,80 @@
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
 
-const userSchema = new mongoose.Schema({
-    email:{
-        type: String,
-        required: true
+const userSchema = new mongoose.Schema(
+  {
+    email: {
+      type: String,
+      required: true,
     },
-    firstname:{
-        type: String,
-        required: true
+    firstname: {
+      type: String,
+      required: true,
     },
-    lastname:{
-        type: String,
-        required: true
-
+    lastname: {
+      type: String,
+      required: true,
     },
     password: {
-        type: String,
-        required: true,
-        minlength: 8
+      type: String,
+      required: true,
+      minlength: 8,
+    },
 
+    contactnumber: {
+      type: Number,
+      required: true,
+      minlength: 10,
     },
-  
-    contactnumber:{
-        type: Number,
-        required: true,
-        minlength: 10
-   
+
+    role: {
+      type: String,
+      enum: ["user", "admin", "instructor"],
+      default: "user",
     },
-    
-    role:{
-        type:String,
-        enum: ['user', 'admin', 'instructor'],
-        default: 'user'
-    
+    verificationCode: {
+      type: String,
+      required: true,
+      default: false,
     },
-    verificationCode:{
-        type: String,
-        required: true,
-        default: false
+    isVerified: {
+      type: Boolean,
+      default: false,
     },
-    isVerified:{
-        type: Boolean,
-        default: false
+    link: {
+      type: String,
+      required: true,
+      default: "default",
     },
-    link:{
-        type: String,
-        required: true,
-        default: 'default'
+
+    gender: {
+      type: String,
+      enum: ["male", "female", "other"],
     },
-    
+    address: {
+      type: String,
+    },
+    emergencycontactno: {
+      type: Number,
+
+      minlength: 10,
+    },
+
+    dob: {
+      type: Date,
+     
+    },
+
     isFirstLogin: {
-        type: Boolean,
-        
-        default: false,
-    }
-    
-    
-},
-    {
-        timestamps: true
-    }
-)
+      type: Boolean,
 
+      default: false,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 
- const User = mongoose.model ('User',userSchema)
+const User = mongoose.model("User", userSchema);
 
- module.exports = User
+module.exports = User;
