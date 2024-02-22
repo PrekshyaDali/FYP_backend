@@ -21,7 +21,6 @@ const path = require("path");
 const AuthGuard = require("./middleware");
 const Editprofile = require("./model/EditProfile.js");
 
-
 const addCourses = require("./model/Addcourses.js");
 const multerMiddleware = require("./model/multerMiddleware.js");
 // const validationMiddleware = require("./model/validator.js");
@@ -31,7 +30,6 @@ require("dotenv").config();
 const SECRET_KEY = "secretkey";
 //connect to express app
 const app = express();
-
 
 //connect to mongodb
 
@@ -153,7 +151,6 @@ app.post("/register", async (req, res) => {
       .json({ error: "Error registering new user please try again." });
   }
 });
-
 
 app.post("/registerInstructor", async (req, res) => {
   // to register instructor
@@ -480,14 +477,6 @@ app.get("/uploads/:filename", async (req, res) => {
 //     return res.status(500).json({ error: "Failed to update user" });
 //   }
 // });
-
-
-
-
-
-
-
-
 
 app.post("/sendotp", sendOtp);
 app.post("/verifyotp", verifyOtp);

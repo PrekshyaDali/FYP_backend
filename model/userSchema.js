@@ -53,15 +53,13 @@ const userSchema = new mongoose.Schema(
     address: {
       type: String,
     },
-    emergencycontactno: {
+    emergencycontactnumber: {
       type: Number,
-
       minlength: 10,
     },
 
     dob: {
       type: Date,
-     
     },
 
     isFirstLogin: {
