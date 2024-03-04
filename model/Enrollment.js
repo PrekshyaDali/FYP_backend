@@ -3,8 +3,8 @@ const mongoose = require("mongoose");
 
 const userEnrollment = async(req, res)=>{
     try{
-    const{firstname, lastname, contactnumber, email, category, emergencycontact, duration, price, address,gender} = req.body;
-    if (!firstname || !lastname || !contactnumber || !email ||  !category || !emergencycontact || !duration || !price || !address  || !gender){
+    const{firstname, lastname, contactnumber, email, category, emergencycontact, duration, price, address,gender, payment} = req.body;
+    if (!firstname || !lastname || !contactnumber || !email ||  !category || !emergencycontact || !duration || !price || !address  || !gender || !payment){
         return res.status(400).json({success: false, message: "Please fill all the fields"});
     }
     const newEnrollment = new Enrollment({
@@ -17,7 +17,8 @@ const userEnrollment = async(req, res)=>{
         duration,
         price,
         gender,
-        address
+        address,
+        payment
     })
     await newEnrollment.save();
     res.status(201).json({success:true, message: "Enrollment successful"});
