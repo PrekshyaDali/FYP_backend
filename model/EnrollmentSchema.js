@@ -41,6 +41,10 @@ const EnrollmentSchema = new mongoose.Schema({
     type: String,
     enum: ["male", "female", "other"],
   },
+  payment:{
+    type : String,
+    eum: ["esewa", "institute"],
+  }
 });
 
 const Enrollment = mongoose.model("Enrollment", EnrollmentSchema);

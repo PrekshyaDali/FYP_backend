@@ -81,9 +81,7 @@ const checkAdmin = async () => {
 
 checkAdmin();
 
-//routes
-//User Registration
-//Post register
+
 
 app.post("/register", async (req, res) => {
   // register the users
@@ -407,6 +405,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(multerMiddleware);
 
 app.post("/upload", (req, res) => {
+  //to upload the img
   console.log(req.file);
   console.log(req.body);
 
@@ -426,57 +425,22 @@ app.post("/upload", (req, res) => {
       .json({ success: false, message: "Only JPG and PNG files are accepted" });
   }
 });
+
 app.get("/uploads/:filename", async (req, res) => {
+  //for fetching img for the courses
   try {
+    console.log(req.params.filename, "filename");
     const fileName = req.params.filename;
     //find the file in the uploads folder
     const file = await fs.promises.readFile(
       path.join(__dirname, "uploads", fileName)
     );
+    console.log(file, "file");
     res.status(200).send(file);
   } catch {
     console.log(error);
   }
 });
-
-// app.post("/edit/:id", validationMiddleware, async (req, res) => {
-//   const userId = req.params.id;
-//   const allowedFields = [
-//     "firstname",
-//     "lastname",
-//     "email",
-//     "contactnumber",
-//     "dob",
-//     "emergencycontactnumber",
-//     "address",
-//     "gender",
-//   ]; // Corrected field name
-
-//   try {
-//     // Find the user by ID in the database
-//     let user = await User.findById(userId);
-
-//     if (!user) {
-//       return res.status(404).json({ error: "User not found" });
-//     }
-
-//     // Update only allowed fields present in the request body
-//     allowedFields.forEach((field) => {
-//       if (req.body[field] !== undefined) {
-//         user[field] = req.body[field];
-//       }
-//     });
-
-//     // Save the updated user information to the database
-//     user = await user.save();
-
-//     // Return the updated user information in the response
-//     return res.json(user); // Use `return` to ensure that no code executes after sending the response
-//   } catch (error) {
-//     console.error("Failed to update user:", error);
-//     return res.status(500).json({ error: "Failed to update user" });
-//   }
-// });
 
 app.post("/sendotp", sendOtp);
 app.post("/verifyotp", verifyOtp);

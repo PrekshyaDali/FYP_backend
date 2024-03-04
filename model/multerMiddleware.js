@@ -6,6 +6,7 @@ const storage = multer.diskStorage({
     return cb(null, "uploads/");
   },
   filename: function (req, file, cb) {
+    console.log(file, "file");
     return cb(null, `${Date.now()}-${file.originalname}`);
   },
 });
@@ -13,6 +14,3 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 module.exports = upload.single("image");
-
-
-
