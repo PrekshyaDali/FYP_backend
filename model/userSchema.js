@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
 const userSchema = new mongoose.Schema(
   {
@@ -69,7 +70,12 @@ const userSchema = new mongoose.Schema(
     },
     image: {
       type: Object,
-      required: true,
+      
+    },
+    enrollment: {
+      type: mongoose.Schema.Types.ObjectId, // Use Schema from Mongoose
+      ref: "Enrollment",
+   
     },
   },
   {
