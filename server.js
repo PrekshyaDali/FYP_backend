@@ -14,7 +14,13 @@ const ForgetPassword = require("./Forgetpassword");
 const SendPassword = require("./Instructor/SendPassword.js");
 const DashboardCount = require("./model/DashboardCount/DashboardCount.js");
 const Search = require("./model/Search.js");
-const userEnrollment = require("./model/Enrollment.js");
+const Enrollment = require("./model/EnrollmentSchema");
+const {
+  userEnrollment,
+  getEnrollment,
+  updateEnrollment,
+  getEnrollmentById,
+} = require("./model/Enrollment");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
@@ -80,8 +86,6 @@ const checkAdmin = async () => {
 };
 
 checkAdmin();
-
-
 
 app.post("/register", async (req, res) => {
   // register the users
@@ -267,11 +271,45 @@ app.get("/users", async (req, res) => {
 
 app.get("/users/:id", async (req, res) => {
   // to dispplay the information for edit  of admin student table
-  const { id } = req.params;
+  try {
+    const { id } = req.params;
+  
 
-  const user = await User.findById(id).select("-password");
-  return res.json(user);
+    const user = await User.findById(id).select("-password");
+    return res.json(user);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 });
+
+// app.get("/users/:id", async (req, res) => {
+//   try {
+//     const { id } = req.params;
+
+//     // Find the user by ID and populate the `enrollment` field
+//     const user = await User.findById(id).select("-password");
+
+//     if (!user) {
+//       return res.status(404).json({ error: "User not found" });
+//     }
+
+//     const enrollment = await Enrollment.findOne({ user: id });
+//     const enrollmentId = enrollment ? enrollment._id : null;
+
+//     const userDataWithEnrollmentId = {
+//       ...user.toObject(),
+//       enrollmentId: enrollmentId,
+//     };
+//     // Log the user object to check its structure
+//     console.log("User:", user);
+
+//     return res.json(user);
+//   } catch (error) {
+//     console.error("Error:", error);
+//     return res.status(500).json({ error: "Internal server error" });
+//   }
+// });
 
 app.put("/edit/:id", async (req, res) => {
   const userId = req.params.id;
@@ -345,7 +383,7 @@ app.get(
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: "Error getting user" });
+      return res.status(500).json({ error: "Error getting user" });
     }
   }
 );
@@ -406,8 +444,6 @@ app.use(multerMiddleware);
 
 app.post("/upload", (req, res) => {
   //to upload the img
-  console.log(req.file);
-  console.log(req.body);
 
   // Checking if req.file exists and its MIME type is jpg or png //Validation
   if (
@@ -429,13 +465,12 @@ app.post("/upload", (req, res) => {
 app.get("/uploads/:filename", async (req, res) => {
   //for fetching img for the courses
   try {
-    console.log(req.params.filename, "filename");
     const fileName = req.params.filename;
     //find the file in the uploads folder
     const file = await fs.promises.readFile(
       path.join(__dirname, "uploads", fileName)
     );
-    console.log(file, "file");
+
     res.status(200).send(file);
   } catch {
     console.log(error);
@@ -451,6 +486,14 @@ app.post("/Search", Search);
 app.put("/editProfile/:id", Editprofile);
 app.post("/addCourses", addCourses);
 app.post("/enrollment", userEnrollment);
+// app.post("/enrollment", userEnrollment);
+app.get(
+  "/getEnrollment",
+  AuthGuard(["user", "instructor", "admin"]),
+  getEnrollment
+);
+app.get("/getEnrollmentId/:id", getEnrollmentById);
+app.patch("/enrollment/:id", updateEnrollment);
 
 // Create //post request
 // Read //get request

@@ -49,6 +49,14 @@ const EditProfile = async (req, res) => {
         message: "Invalid Email format",
       });
     }
+    const dobRegex = /^\d{2}\/\d{2}\/\d{4}$/;
+    // Validate date of birth format
+    if (!dobRegex.test(dob)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid date of birth format",
+      });
+    }
 
     // Validate contact number format
     const contactNumberRegex = /^(98|96|97)[1-9]\d{7}$/;

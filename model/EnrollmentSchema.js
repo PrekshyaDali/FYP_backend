@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 const EnrollmentSchema = new mongoose.Schema({
   firstname: {
     type: String,
@@ -21,7 +22,7 @@ const EnrollmentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  emergencycontact: {
+  emergencycontactnumber: {
     type: Number,
     required: true,
   },
@@ -41,10 +42,24 @@ const EnrollmentSchema = new mongoose.Schema({
     type: String,
     enum: ["male", "female", "other"],
   },
-  payment:{
-    type : String,
+  payment: {
+    type: String,
     eum: ["esewa", "institute"],
-  }
+  },
+  startdate: {
+    type: Date,
+    default: Date.now,
+  },
+  course: {
+    type: Schema.Types.ObjectId,
+    ref: "Course",
+    required: true,
+  },
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
 });
 
 const Enrollment = mongoose.model("Enrollment", EnrollmentSchema);
