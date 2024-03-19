@@ -77,6 +77,10 @@ const userSchema = new mongoose.Schema(
       ref: "Enrollment",
    
     },
+    enrolled:{
+      type:Boolean,
+      default:false
+    }
   },
   {
     timestamps: true,

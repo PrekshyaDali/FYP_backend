@@ -15,6 +15,8 @@ const sentOtp = async (req, res) => {
       updatedUser.verificationCode,
       "Verification otp from DriveSync",
       "Your OTP is",
+      `<h1>Please enter your otp code for verifying your account</h1>
+      <p>Your otp is ${otp}</p>`,
       email
     );
     res.status(200).json({

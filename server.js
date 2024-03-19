@@ -20,6 +20,8 @@ const {
   getEnrollment,
   updateEnrollment,
   getEnrollmentById,
+  countEnrollment,
+  oneEnrollmentUser,
 } = require("./model/Enrollment");
 const multer = require("multer");
 const fs = require("fs");
@@ -260,20 +262,34 @@ app.post("/login", async (req, res) => {
 });
 
 app.get("/users", async (req, res) => {
-  // to get the user list of admin student table
-  const users = await User.find(
-    { role: "user" },
-    { email: 1, firstname: 1, lastname: 1, contactnumber: 1, _id: 1 }
-  );
+  try {
+    // Get the list of users
+    const users = await User.find(
+      { role: "user" },
+      { email: 1, firstname: 1, lastname: 1, contactnumber: 1, _id: 1 }
+    );
 
-  return res.json(users);
+    // Iterate over each user and check if they are enrolled in any course
+    for (let i = 0; i < users.length; i++) {
+      const user = users[i];
+      // Find course enrollments for the current user
+      const courseEnrollments = await Enrollment.find({ user: user._id });
+
+      // If user has any course enrollments, set enrolled to true; otherwise, set it to false
+      user.enrolled = courseEnrollments.length > 0;
+    }
+
+    // Send the response
+    return res.json(users);
+  } catch (error) {
+    // Handle errors
+    return res.status(500).json({ error: "Internal server error" });
+  }
 });
-
 app.get("/users/:id", async (req, res) => {
   // to dispplay the information for edit  of admin student table
   try {
     const { id } = req.params;
-  
 
     const user = await User.findById(id).select("-password");
     return res.json(user);
@@ -282,34 +298,6 @@ app.get("/users/:id", async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 });
-
-// app.get("/users/:id", async (req, res) => {
-//   try {
-//     const { id } = req.params;
-
-//     // Find the user by ID and populate the `enrollment` field
-//     const user = await User.findById(id).select("-password");
-
-//     if (!user) {
-//       return res.status(404).json({ error: "User not found" });
-//     }
-
-//     const enrollment = await Enrollment.findOne({ user: id });
-//     const enrollmentId = enrollment ? enrollment._id : null;
-
-//     const userDataWithEnrollmentId = {
-//       ...user.toObject(),
-//       enrollmentId: enrollmentId,
-//     };
-//     // Log the user object to check its structure
-//     console.log("User:", user);
-
-//     return res.json(user);
-//   } catch (error) {
-//     console.error("Error:", error);
-//     return res.status(500).json({ error: "Internal server error" });
-//   }
-// });
 
 app.put("/edit/:id", async (req, res) => {
   const userId = req.params.id;
@@ -493,6 +481,8 @@ app.get(
   getEnrollment
 );
 app.get("/getEnrollmentId/:id", getEnrollmentById);
+app.get("/oneEnrollmentUser/:enrollmentId", oneEnrollmentUser);
+app.get("/countEnrollment", countEnrollment);
 app.patch("/enrollment/:id", updateEnrollment);
 
 // Create //post request
