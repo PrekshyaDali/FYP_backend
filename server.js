@@ -23,13 +23,17 @@ const {
   countEnrollment,
   oneEnrollmentUser,
 } = require("./model/Enrollment");
+const {
+  editCourses,
+  AddCourses,
+} = require("./model/Addcourses.js");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
 const AuthGuard = require("./middleware");
 const Editprofile = require("./model/EditProfile.js");
 
-const addCourses = require("./model/Addcourses.js");
+// const addCourses = require("./model/Addcourses.js");
 const multerMiddleware = require("./model/multerMiddleware.js");
 // const validationMiddleware = require("./model/validator.js");
 require("dotenv").config();
@@ -322,7 +326,7 @@ app.put("/edit/:id", async (req, res) => {
     user = await user.save();
 
     // Return the updated user information in the response
-    return res.json(user); // Use `return` to ensure that no code executes after sending the response
+    return res.json(user); 
   } catch (error) {
     console.error("Failed to update user:", error);
     return res.status(500).json({ error: "Failed to update user" });
@@ -472,7 +476,8 @@ app.post("/SendPassword", SendPassword);
 app.get("/DashboardCount", DashboardCount);
 app.post("/Search", Search);
 app.put("/editProfile/:id", Editprofile);
-app.post("/addCourses", addCourses);
+app.post("/addCourses", AddCourses);
+app.put('/editCourses/:id', editCourses)
 app.post("/enrollment", userEnrollment);
 // app.post("/enrollment", userEnrollment);
 app.get(

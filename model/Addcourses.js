@@ -20,7 +20,7 @@ const validateInput = (
     throw new Error("Course overview should not exceed 100 words.");
   }
 
-  if (courseDescription.length <= 250) {
+  if (courseDescription.length <= 100) {
     throw new Error(
       "Course description should be at least 250 characters long."
     );
@@ -84,4 +84,51 @@ const AddCourses = async (req, res) => {
   }
 };
 
-module.exports = AddCourses;
+const editCourses = async (req, res) => {
+  try {
+    const courseId = req.params.id;
+    const updatedFields = req.body;
+    if(req.file){
+      updatedFields.image = `http://localhost:3001/uploads/${req.file.filename}`;
+    }
+    console.log(updatedFields, courseId)
+
+
+    // Fetch the original course data to compare against for validation
+    const originalCourse = await Course.findById(courseId);
+
+    // Validate the updated fields against the same criteria as during creation
+    validateInput(
+      updatedFields.courseOverview || originalCourse.courseOverview,
+      updatedFields.certification || originalCourse.certification,
+      updatedFields.courseDuration || originalCourse.courseDuration,
+      updatedFields.price || originalCourse.price,
+      updatedFields.type || originalCourse.type,
+      updatedFields.courseDescription || originalCourse.courseDescription,
+      updatedFields.image || originalCourse.image
+    );
+
+    // Perform the update
+    const result = await Course.findOneAndUpdate(
+      { _id: courseId },
+      updatedFields,
+      { new: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Course updated successfully",
+      result,
+    });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ error: "Couldn't update course", message: error.message });
+  }
+};
+
+module.exports = {
+  AddCourses,
+  editCourses,
+};
