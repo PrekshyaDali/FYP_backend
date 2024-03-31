@@ -59,9 +59,11 @@ const userEnrollment = async (req, res) => {
     res.status(201).json({ success: true, message: "Enrollment successful" });
     console.log(newEnrollment);
     await sendEmail(
-      "Enrollment successful",
+      "We have recieved your enrollment, Enrollment!!!",
       "Enrollment successful",
       "Your enrollment has been successful",
+      `<h1>Your enrollment has been successful</h1>
+      <p>Thank you for enrolling in our course</p>`,
       email
     );
     
@@ -82,24 +84,13 @@ const getEnrollment = async (req, res) => {
   }
 };
 
-// const getEnrollmentById = async (req, res) => {
-//   try {
-//     const enrollmentId = req.params.id;
-
-//     const enrollments = await Enrollment.findById(enrollmentId);
-//     console.log(enrollments, "enrollments");
-//     res.status(200).json({ success: true, data: enrollments });
-//   } catch (error) {
-//     res.status(500).json({ success: false, message: error.message });
-//   }
-// };
 
 const getEnrollmentById = async (req, res) => {
   try {
     const userId = req.params.id; // Extract user ID from request parameters
 
     // Find the enrollment document that matches the user's ID
-    const enrollment = await Enrollment.findOne({ user: userId });
+    const enrollment = await Enrollment.find({ user: userId });
 
     if (enrollment) {
       // If enrollment is found, send the enrollment data in the response
@@ -116,6 +107,41 @@ const getEnrollmentById = async (req, res) => {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
+const oneEnrollmentUser = async (req, res) => {
+  try {
+    const enrollmentId = req.params.enrollmentId; // Extract enrollment ID from request parameters
+
+    // Find the enrollment document that matches the enrollment ID
+    const enrollment = await Enrollment.findById(enrollmentId);
+
+    if (enrollment) {
+      // If enrollment is found, send the enrollment data in the response
+      return res.status(200).json({ success: true, data: enrollment });
+    } else {
+      // If no enrollment is found for the provided ID, send a 404 Not Found response
+      return res
+        .status(404)
+        .json({
+          success: false,
+          message: "Enrollment not found for the provided ID",
+        });
+    }
+  } catch (error) {
+    // If an error occurs, send a 500 Internal Server Error response
+    console.error(error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+
+const countEnrollment = async(req, res)=>{
+  try{
+    const count = await Enrollment.countDocuments();
+    res.status(200).json({success: true, data: count});
+  }catch(error){
+    res.status(500).json({success: false, message: error.message});
+  }
+}
 
 
 const updateEnrollment = async (req, res) => {
@@ -136,4 +162,11 @@ const updateEnrollment = async (req, res) => {
   }
 };
 
-module.exports = { userEnrollment, getEnrollment, updateEnrollment , getEnrollmentById};
+module.exports = {
+  userEnrollment,
+  getEnrollment,
+  updateEnrollment,
+  getEnrollmentById,
+  countEnrollment,
+  oneEnrollmentUser,
+};

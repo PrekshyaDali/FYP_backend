@@ -12,18 +12,20 @@ let transporter = nodemailer.createTransport({
   },
 });
     
-const sendEmail = async (otp, subject, text, to) => {
+const sendEmail = async (otp, subject, text, htmlContent, to) => {
     try{
         const mailOptions = {
             from: EMAIL,
             to: to,
             subject: subject,
             text: text,
-            html: `
-            <h1>Please enter your otp code for verifying your account</h1>
-            <p>Your otp is ${otp}</p>
+            html: htmlContent
+            
+            // `
+            // <h1>Please enter your otp code for verifying your account</h1>
+            // <p>Your otp is ${otp}</p>
 
-            `
+            // `
             
 
         };
