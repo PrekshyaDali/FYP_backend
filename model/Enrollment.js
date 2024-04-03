@@ -86,6 +86,7 @@ const getEnrollment = async (req, res) => {
 
 
 const getEnrollmentById = async (req, res) => {
+  //to map the enrollment data of the user in view student
   try {
     const userId = req.params.id; // Extract user ID from request parameters
 
