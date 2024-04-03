@@ -15,6 +15,7 @@ const SendPassword = require("./Instructor/SendPassword.js");
 const DashboardCount = require("./model/DashboardCount/DashboardCount.js");
 const Search = require("./model/Search.js");
 const Enrollment = require("./model/EnrollmentSchema");
+const ViewStudent = require("./model/ViewStudent.js");
 const {
   userEnrollment,
   getEnrollment,
@@ -23,10 +24,7 @@ const {
   countEnrollment,
   oneEnrollmentUser,
 } = require("./model/Enrollment");
-const {
-  editCourses,
-  AddCourses,
-} = require("./model/Addcourses.js");
+const { editCourses, AddCourses } = require("./model/Addcourses.js");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
@@ -35,6 +33,10 @@ const Editprofile = require("./model/EditProfile.js");
 
 // const addCourses = require("./model/Addcourses.js");
 const multerMiddleware = require("./model/multerMiddleware.js");
+const {
+  Attendancetracking,
+  getAttendance,
+} = require("./model/AttendanceTracking.js");
 // const validationMiddleware = require("./model/validator.js");
 require("dotenv").config();
 // const routes  = require('./model/routes.js');
@@ -326,7 +328,7 @@ app.put("/edit/:id", async (req, res) => {
     user = await user.save();
 
     // Return the updated user information in the response
-    return res.json(user); 
+    return res.json(user);
   } catch (error) {
     console.error("Failed to update user:", error);
     return res.status(500).json({ error: "Failed to update user" });
@@ -477,7 +479,7 @@ app.get("/DashboardCount", DashboardCount);
 app.post("/Search", Search);
 app.put("/editProfile/:id", Editprofile);
 app.post("/addCourses", AddCourses);
-app.put('/editCourses/:id', editCourses)
+app.put("/editCourses/:id", editCourses);
 app.post("/enrollment", userEnrollment);
 // app.post("/enrollment", userEnrollment);
 app.get(
@@ -489,6 +491,10 @@ app.get("/getEnrollmentId/:id", getEnrollmentById);
 app.get("/oneEnrollmentUser/:enrollmentId", oneEnrollmentUser);
 app.get("/countEnrollment", countEnrollment);
 app.patch("/enrollment/:id", updateEnrollment);
+app.post("/attendance", Attendancetracking);
+app.get("/getAttendance/:enrollmentId", getAttendance);
+
+app.post("/viewStudent", ViewStudent);
 
 // Create //post request
 // Read //get request

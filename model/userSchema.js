@@ -80,7 +80,8 @@ const userSchema = new mongoose.Schema(
     enrolled:{
       type:Boolean,
       default:false
-    }
+    },
+
   },
   {
     timestamps: true,

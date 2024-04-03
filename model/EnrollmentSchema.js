@@ -60,6 +60,7 @@ const EnrollmentSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
+
 });
 
 const Enrollment = mongoose.model("Enrollment", EnrollmentSchema);
