@@ -15,7 +15,7 @@ const SendPassword = require("./Instructor/SendPassword.js");
 const DashboardCount = require("./model/DashboardCount/DashboardCount.js");
 const Search = require("./model/Search.js");
 const Enrollment = require("./model/EnrollmentSchema");
-const ViewStudent = require("./model/ViewStudent.js");
+const PaymentTracking = require("./model/PaymentTracking.js");
 const {
   userEnrollment,
   getEnrollment,
@@ -493,8 +493,9 @@ app.get("/countEnrollment", countEnrollment);
 app.patch("/enrollment/:id", updateEnrollment);
 app.post("/attendance", Attendancetracking);
 app.get("/getAttendance/:enrollmentId", getAttendance);
+app.post("/paymentTracking", PaymentTracking)
 
-app.post("/viewStudent", ViewStudent);
+
 
 // Create //post request
 // Read //get request

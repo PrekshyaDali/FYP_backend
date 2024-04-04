@@ -12,19 +12,8 @@ const Attendancetracking = async (req, res) => {
       return res.status(404).json({ error: "Enrollment not found" });
     }
 
-    // Create new attendance record
-    const attendance = new Attendance({
-      user: userId,
-      enrollment: enrollmentId,
-      date: new Date(date),
-    });
-
-    // Save the attendance record to the database
-    await attendance.save();
-
     // Count present days starting from enrollment start date
     const startDateObj = new Date(enrollment.startdate);
-    console.log(enrollment.startdate);
     const endDateObj = new Date(date);
     const presentDaysCount = await Attendance.countDocuments({
       user: userId,
@@ -35,6 +24,25 @@ const Attendancetracking = async (req, res) => {
     // Calculate remaining days (assuming course duration is 30 days)
     const courseDuration = 30;
     const remainingDays = courseDuration - presentDaysCount;
+
+    // Check if remaining days are 0
+    if (remainingDays === 0 || remainingDays < 0) {
+      return res
+        .status(403)
+        .json({
+          error: "Attendance cannot be recorded, course already completed",
+        });
+    }
+
+    // Create new attendance record
+    const attendance = new Attendance({
+      user: userId,
+      enrollment: enrollmentId,
+      date: new Date(date),
+    });
+
+    // Save the attendance record to the database
+    await attendance.save();
 
     res.status(201).json({
       message: "Attendance recorded successfully",
@@ -76,6 +84,5 @@ const getAttendance = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
 
 module.exports = { Attendancetracking, getAttendance };
