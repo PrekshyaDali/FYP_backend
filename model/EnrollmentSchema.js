@@ -60,7 +60,10 @@ const EnrollmentSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
-
+  remainingAmount: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Enrollment = mongoose.model("Enrollment", EnrollmentSchema);
