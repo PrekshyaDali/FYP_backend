@@ -15,7 +15,10 @@ const SendPassword = require("./Instructor/SendPassword.js");
 const DashboardCount = require("./model/DashboardCount/DashboardCount.js");
 const Search = require("./model/Search.js");
 const Enrollment = require("./model/EnrollmentSchema");
-const {PaymentTracking, getPaymentData} = require("./model/PaymentTracking.js");
+const {
+  PaymentTracking,
+  getPaymentData,
+} = require("./model/PaymentTracking.js");
 const {
   userEnrollment,
   getEnrollment,
@@ -25,6 +28,7 @@ const {
   oneEnrollmentUser,
 } = require("./model/Enrollment");
 const { editCourses, AddCourses } = require("./model/Addcourses.js");
+const {addNotification, getNotification }= require("./model/AddNotification.js");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
@@ -37,6 +41,7 @@ const {
   Attendancetracking,
   getAttendance,
 } = require("./model/AttendanceTracking.js");
+
 // const validationMiddleware = require("./model/validator.js");
 require("dotenv").config();
 // const routes  = require('./model/routes.js');
@@ -493,10 +498,10 @@ app.get("/countEnrollment", countEnrollment);
 app.patch("/enrollment/:id", updateEnrollment);
 app.post("/attendance", Attendancetracking);
 app.get("/getAttendance/:enrollmentId", getAttendance);
-app.post("/paymentTracking", PaymentTracking)
-app.get("/getPaymentData/:enrollmentId", getPaymentData)
-
-
+app.post("/paymentTracking", PaymentTracking);
+app.get("/getPaymentData/:enrollmentId", getPaymentData);
+app.post("/addNotification", addNotification);
+app.get("/getNotification", getNotification);
 
 // Create //post request
 // Read //get request
