@@ -62,7 +62,7 @@ const EnrollmentSchema = new mongoose.Schema({
   },
   remainingAmount: {
     type: Number,
-    default: 0,
+    default: null,
   },
 });
 
