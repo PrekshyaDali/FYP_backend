@@ -1,6 +1,6 @@
 const Enrollment = require("../model/EnrollmentSchema");
 const mongoose = require("mongoose");
-const sendEmail = require("../Otp/email.utils");
+const sendEmail = require("../utils/email.utils");
 
 const userEnrollment = async (req, res) => {
   try {
@@ -66,7 +66,6 @@ const userEnrollment = async (req, res) => {
       <p>Thank you for enrolling in our course</p>`,
       email
     );
-    
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: error.message });
@@ -83,7 +82,6 @@ const getEnrollment = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
 
 const getEnrollmentById = async (req, res) => {
   //to map the enrollment data of the user in view student
@@ -120,12 +118,10 @@ const oneEnrollmentUser = async (req, res) => {
       return res.status(200).json({ success: true, data: enrollment });
     } else {
       // If no enrollment is found for the provided ID, send a 404 Not Found response
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message: "Enrollment not found for the provided ID",
-        });
+      return res.status(404).json({
+        success: false,
+        message: "Enrollment not found for the provided ID",
+      });
     }
   } catch (error) {
     // If an error occurs, send a 500 Internal Server Error response
@@ -134,16 +130,14 @@ const oneEnrollmentUser = async (req, res) => {
   }
 };
 
-
-const countEnrollment = async(req, res)=>{
-  try{
+const countEnrollment = async (req, res) => {
+  try {
     const count = await Enrollment.countDocuments();
-    res.status(200).json({success: true, data: count});
-  }catch(error){
-    res.status(500).json({success: false, message: error.message});
+    res.status(200).json({ success: true, data: count });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
-}
-
+};
 
 const updateEnrollment = async (req, res) => {
   try {

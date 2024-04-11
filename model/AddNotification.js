@@ -1,6 +1,6 @@
 const Notification = require("./NotificationSchema");
 const moment = require("moment-timezone");
-const sendEmail = require("../Otp/email.utils");
+const sendEmail = require("../utils/email.utils");
 const nodemailer = require("nodemailer");
 const User = require("../model/userSchema");
 
@@ -29,7 +29,7 @@ const addNotification = async (req, res) => {
     users.forEach(async (user) => {
       const formattedDate = moment(nepaliTime).format("YYYY-MM-DD hh:mm:ss A");
       // Prepare HTML content for the email
-    const htmlContent = `
+      const htmlContent = `
         <p>Dear ${user.firstname},</p>
         <p>${notification}</p>
         <div>

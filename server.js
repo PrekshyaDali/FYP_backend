@@ -6,15 +6,17 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("./model/userSchema");
 const Course = require("./model/CourseSchema");
-const sendOtp = require("./Otp/user");
-const verifyOtp = require("./Otp/Emailverify");
-const sendEmail = require("./Otp/email.utils");
+const sendOtp = require("./utils/user.js");
+const verifyOtp = require("./utils/Emailverify.js");
+const sendEmail = require("./utils/email.utils.js");
 sendResetLink = require("./reset.utils");
 const ForgetPassword = require("./Forgetpassword");
 const SendPassword = require("./Instructor/SendPassword.js");
 const DashboardCount = require("./model/DashboardCount/DashboardCount.js");
 const Search = require("./model/Search.js");
 const Enrollment = require("./model/EnrollmentSchema");
+const userRouter = require("./Instructor/routes/user.router.js");
+
 const {
   PaymentTracking,
   getPaymentData,
@@ -28,7 +30,10 @@ const {
   oneEnrollmentUser,
 } = require("./model/Enrollment");
 const { editCourses, AddCourses } = require("./model/Addcourses.js");
-const {addNotification, getNotification }= require("./model/AddNotification.js");
+const {
+  addNotification,
+  getNotification,
+} = require("./model/AddNotification.js");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
@@ -49,6 +54,11 @@ require("dotenv").config();
 const SECRET_KEY = "secretkey";
 //connect to express app
 const app = express();
+//middleware
+app.use(bodyParser.json());
+app.use(cors());
+
+app.use(userRouter);
 
 //connect to mongodb
 
@@ -64,10 +74,6 @@ mongoose
   .catch((error) => {
     console.log("unable to connect to mongodb");
   });
-
-//middleware
-app.use(bodyParser.json());
-app.use(cors());
 
 const checkAdmin = async () => {
   // check if the admin exists or not
@@ -100,72 +106,72 @@ const checkAdmin = async () => {
 
 checkAdmin();
 
-app.post("/register", async (req, res) => {
-  // register the users
-  try {
-    console.log(req.body);
-    const { email, firstName, lastName, password, contactNumber } = req.body;
-    console.log(email, firstName, lastName, password, contactNumber);
+// app.post("/register", async (req, res) => {
+//   // register the users
+//   try {
+//     console.log(req.body);
+//     const { email, firstName, lastName, password, contactNumber } = req.body;
+//     console.log(email, firstName, lastName, password, contactNumber);
 
-    if (!email || !firstName || !lastName || !password || !contactNumber) {
-      return res.status(401).json({
-        success: false,
-        message: "All Fields are required",
-      });
-    }
+//     if (!email || !firstName || !lastName || !password || !contactNumber) {
+//       return res.status(401).json({
+//         success: false,
+//         message: "All Fields are required",
+//       });
+//     }
 
-    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-    if (!emailRegex.test(email)) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid Email ",
-      });
-    }
-    const contactNumberRegex = /^[6-9]\d{9}$/;
-    if (!contactNumberRegex.test(contactNumber)) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid contact number",
-      });
-    }
-    const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
-    if (!passwordRegex.test(password)) {
-      return res.status(401).json({
-        success: false,
-        message:
-          "Password must contain atleast one uppercase, one lowercase, one digit and one special character",
-      });
-    }
+//     const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+//     if (!emailRegex.test(email)) {
+//       return res.status(401).json({
+//         success: false,
+//         message: "Invalid Email ",
+//       });
+//     }
+//     const contactNumberRegex = /^[6-9]\d{9}$/;
+//     if (!contactNumberRegex.test(contactNumber)) {
+//       return res.status(401).json({
+//         success: false,
+//         message: "Invalid contact number",
+//       });
+//     }
+//     const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
+//     if (!passwordRegex.test(password)) {
+//       return res.status(401).json({
+//         success: false,
+//         message:
+//           "Password must contain atleast one uppercase, one lowercase, one digit and one special character",
+//       });
+//     }
 
-    const user = await User.findOne({ email });
-    console.log(user);
+//     const user = await User.findOne({ email });
+//     console.log(user);
 
-    if (user) {
-      return res.status(400).json({
-        success: false,
-        message: "User already exists with that email",
-      });
-    }
+//     if (user) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "User already exists with that email",
+//       });
+//     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({
-      email,
-      role: "user",
-      firstname: firstName,
-      lastname: lastName,
-      password: hashedPassword,
-      contactnumber: contactNumber,
-    });
-    await newUser.save();
+//     const hashedPassword = await bcrypt.hash(password, 10);
+//     const newUser = new User({
+//       email,
+//       role: "user",
+//       firstname: firstName,
+//       lastname: lastName,
+//       password: hashedPassword,
+//       contactnumber: contactNumber,
+//     });
+//     await newUser.save();
 
-    res.status(201).json({ message: "User created Successfully" });
-  } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .json({ error: "Error registering new user please try again." });
-  }
-});
+//     res.status(201).json({ message: "User created Successfully" });
+//   } catch (error) {
+//     console.error(error);
+//     res
+//       .status(500)
+//       .json({ error: "Error registering new user please try again." });
+//   }
+// });
 
 app.post("/registerInstructor", async (req, res) => {
   // to register instructor
@@ -235,122 +241,124 @@ app.post("/registerInstructor", async (req, res) => {
   }
 });
 
-app.post("/login", async (req, res) => {
-  // to login
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
+// app.post("/login", async (req, res) => {
+//   // to login
+//   try {
+//     const { email, password } = req.body;
+//     const user = await User.findOne({ email });
 
-    if (!user) {
-      return res.status(401).json({ error: "No user found" });
-    }
-    const isVerified = user.isVerified;
-    if (!isVerified) {
-      return res
-        .status(404)
-        .json({ error: "User not verified, Please verify your email" });
-    }
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({ error: "Password not valid" });
-    }
+//     if (!user) {
+//       return res.status(401).json({ error: "No user found" });
+//     }
+//     const isVerified = user.isVerified;
+//     if (!isVerified) {
+//       return res
+//         .status(404)
+//         .json({ error: "User not verified, Please verify your email" });
+//     }
+//     const isPasswordValid = await bcrypt.compare(password, user.password);
+//     if (!isPasswordValid) {
+//       return res.status(401).json({ error: "Password not valid" });
+//     }
 
-    const userPayload = { email: user.email, role: user.role, id: user._id };
+//     const userPayload = { email: user.email, role: user.role, id: user._id };
 
-    const accessToken = jwt.sign(userPayload, process.env.ACCESS_TOKEN_SECRET);
-    // console.log(accessToken);
+//     const accessToken = jwt.sign(userPayload, process.env.ACCESS_TOKEN_SECRET);
+//     // console.log(accessToken);
 
-    return res.status(200).json({
-      message: "Login successfull",
-      email: user.email,
-      role: user.role,
-      isFirstLogin: user.isFirstLogin,
-      accessToken,
-    });
-  } catch (error) {
-    res.status(500).json({ error: "Error logging in" });
-  }
-});
+//     return res.status(200).json({
+//       message: "Login successfull",
+//       email: user.email,
+//       role: user.role,
+//       isFirstLogin: user.isFirstLogin,
+//       id: user._id,
+//       accessToken,
+//     });
+//   } catch (error) {
+//     res.status(500).json({ error: "Error logging in" });
+//   }
+// });
 
-app.get("/users", async (req, res) => {
-  try {
-    // Get the list of users
-    const users = await User.find(
-      { role: "user" },
-      { email: 1, firstname: 1, lastname: 1, contactnumber: 1, _id: 1 }
-    );
+// app.get("/users", async (req, res) => {
+//   try {
+//     // Get the list of users
+//     const users = await User.find(
+//       { role: "user" },
+//       { email: 1, firstname: 1, lastname: 1, contactnumber: 1, _id: 1 }
+//     );
 
-    // Iterate over each user and check if they are enrolled in any course
-    for (let i = 0; i < users.length; i++) {
-      const user = users[i];
-      // Find course enrollments for the current user
-      const courseEnrollments = await Enrollment.find({ user: user._id });
+//     // Iterate over each user and check if they are enrolled in any course
+//     for (let i = 0; i < users.length; i++) {
+//       const user = users[i];
+//       // Find course enrollments for the current user
+//       const courseEnrollments = await Enrollment.find({ user: user._id });
 
-      // If user has any course enrollments, set enrolled to true; otherwise, set it to false
-      user.enrolled = courseEnrollments.length > 0;
-    }
+//       // If user has any course enrollments, set enrolled to true; otherwise, set it to false
+//       user.enrolled = courseEnrollments.length > 0;
+//     }
 
-    // Send the response
-    return res.json(users);
-  } catch (error) {
-    // Handle errors
-    return res.status(500).json({ error: "Internal server error" });
-  }
-});
-app.get("/users/:id", async (req, res) => {
-  // to dispplay the information for edit  of admin student table
-  try {
-    const { id } = req.params;
+//     // Send the response
+//     return res.json(users);
+//   } catch (error) {
+//     // Handle errors
+//     return res.status(500).json({ error: "Internal server error" });
+//   }
+// });
 
-    const user = await User.findById(id).select("-password");
-    return res.json(user);
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Internal server error" });
-  }
-});
+// app.get("/users/:id", async (req, res) => {
+//   // to dispplay the information for edit  of admin student table
+//   try {
+//     const { id } = req.params;
 
-app.put("/edit/:id", async (req, res) => {
-  const userId = req.params.id;
-  const allowedFields = ["firstname", "lastname", "email", "contactnumber"]; // Define allowed fields
+//     const user = await User.findById(id).select("-password");
+//     return res.json(user);
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({ error: "Internal server error" });
+//   }
+// });
 
-  try {
-    // Find the user by ID in the database
-    let user = await User.findById(userId);
+// app.put("/edit/:id", async (req, res) => {
+//   const userId = req.params.id;
+//   const allowedFields = ["firstname", "lastname", "email", "contactnumber"]; // Define allowed fields
 
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
+//   try {
+//     // Find the user by ID in the database
+//     let user = await User.findById(userId);
 
-    // Update only allowed fields present in the request body
-    allowedFields.forEach((field) => {
-      if (req.body[field] !== undefined) {
-        user[field] = req.body[field];
-      }
-    });
+//     if (!user) {
+//       return res.status(404).json({ error: "User not found" });
+//     }
 
-    // Save the updated user information to the database
-    user = await user.save();
+//     // Update only allowed fields present in the request body
+//     allowedFields.forEach((field) => {
+//       if (req.body[field] !== undefined) {
+//         user[field] = req.body[field];
+//       }
+//     });
 
-    // Return the updated user information in the response
-    return res.json(user);
-  } catch (error) {
-    console.error("Failed to update user:", error);
-    return res.status(500).json({ error: "Failed to update user" });
-  }
-});
+//     // Save the updated user information to the database
+//     user = await user.save();
 
-app.delete("/user/:id", async (req, res) => {
-  // for the delete user of admin student table
-  try {
-    const { id } = req.params;
-    const user = await User.findByIdAndDelete(id);
-    return res.status(200).json({ message: "User deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting user:", error);
-    return res.status(500).json({ error: "Error deleting user" });
-  }
-});
+//     // Return the updated user information in the response
+//     return res.json(user);
+//   } catch (error) {
+//     console.error("Failed to update user:", error);
+//     return res.status(500).json({ error: "Failed to update user" });
+//   }
+// });
+
+// app.delete("/user/:id", async (req, res) => {
+//   // for the delete user of admin student table
+//   try {
+//     const { id } = req.params;
+//     const user = await User.findByIdAndDelete(id);
+//     return res.status(200).json({ message: "User deleted successfully" });
+//   } catch (error) {
+//     console.error("Error deleting user:", error);
+//     return res.status(500).json({ error: "Error deleting user" });
+//   }
+// });
 
 app.get("/instructors", async (req, res) => {
   // to get the instructor list of admin instructor table
@@ -476,8 +484,8 @@ app.get("/uploads/:filename", async (req, res) => {
   }
 });
 
-app.post("/sendotp", sendOtp);
-app.post("/verifyotp", verifyOtp);
+// app.post("/sendotp", sendOtp);
+// app.post("/verifyotp", verifyOtp);
 app.post("/ForgetPassword", ForgetPassword);
 app.post("/SendPassword", SendPassword);
 app.get("/DashboardCount", DashboardCount);

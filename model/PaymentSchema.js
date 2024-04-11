@@ -19,6 +19,10 @@ const PaymentSchema = new mongoose.Schema({
     ref: "Enrollment",
     required: true,
   },
+  date: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 module.exports = mongoose.model("Payment", PaymentSchema);
