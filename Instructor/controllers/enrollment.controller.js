@@ -1,7 +1,10 @@
-const Enrollment = require("../model/EnrollmentSchema");
+const Enrollment = require("../../model/EnrollmentSchema");
 const mongoose = require("mongoose");
-const sendEmail = require("../utils/email.utils");
+const sendEmail = require("../../utils/email.utils");
 
+
+
+// to enroll the user
 const userEnrollment = async (req, res) => {
   try {
     const {
@@ -72,6 +75,8 @@ const userEnrollment = async (req, res) => {
   }
 };
 
+
+//to get the enrollment details from the profile , token
 const getEnrollment = async (req, res) => {
   try {
     const userEmail = req.user.email;
@@ -83,6 +88,8 @@ const getEnrollment = async (req, res) => {
   }
 };
 
+
+//to get the enrollmnet details of the user by id for the view student
 const getEnrollmentById = async (req, res) => {
   //to map the enrollment data of the user in view student
   try {
@@ -106,6 +113,8 @@ const getEnrollmentById = async (req, res) => {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
+
+
 const oneEnrollmentUser = async (req, res) => {
   try {
     const enrollmentId = req.params.enrollmentId; // Extract enrollment ID from request parameters
@@ -157,7 +166,8 @@ const updateEnrollment = async (req, res) => {
   }
 };
 
-module.exports = {
+const enrollmentController = 
+{
   userEnrollment,
   getEnrollment,
   updateEnrollment,
@@ -165,3 +175,4 @@ module.exports = {
   countEnrollment,
   oneEnrollmentUser,
 };
+module.exports = enrollmentController;

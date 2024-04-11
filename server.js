@@ -16,11 +16,16 @@ const DashboardCount = require("./model/DashboardCount/DashboardCount.js");
 const Search = require("./model/Search.js");
 const Enrollment = require("./model/EnrollmentSchema");
 const userRouter = require("./Instructor/routes/user.router.js");
+const enrollmentRouter = require("./Instructor/routes/enrollment.router.js");
+const courseRouter = require("./Instructor/routes/courses.router.js");
+const attendanceRouter = require("./Instructor/routes/attendance.router.js");
+const paymentRouter = require("./Instructor/routes/payment.router.js");
+const notificationRouter = require("./Instructor/routes/notification.router.js");
 
 const {
   PaymentTracking,
   getPaymentData,
-} = require("./model/PaymentTracking.js");
+} = require("./Instructor/controllers/payment.controller.js");
 const {
   userEnrollment,
   getEnrollment,
@@ -28,16 +33,19 @@ const {
   getEnrollmentById,
   countEnrollment,
   oneEnrollmentUser,
-} = require("./model/Enrollment");
-const { editCourses, AddCourses } = require("./model/Addcourses.js");
+} = require("./Instructor/controllers/enrollment.controller.js");
+const {
+  editCourses,
+  AddCourses,
+} = require("./Instructor/controllers/courses.controller.js");
 const {
   addNotification,
   getNotification,
-} = require("./model/AddNotification.js");
+} = require("./Instructor/controllers/notifications.controller.js");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
-const AuthGuard = require("./middleware");
+const AuthGuard = require("./middlewares/middleware.js");
 const Editprofile = require("./model/EditProfile.js");
 
 // const addCourses = require("./model/Addcourses.js");
@@ -45,7 +53,7 @@ const multerMiddleware = require("./model/multerMiddleware.js");
 const {
   Attendancetracking,
   getAttendance,
-} = require("./model/AttendanceTracking.js");
+} = require("./Instructor/controllers/attendance.controller.js");
 
 // const validationMiddleware = require("./model/validator.js");
 require("dotenv").config();
@@ -59,6 +67,11 @@ app.use(bodyParser.json());
 app.use(cors());
 
 app.use(userRouter);
+app.use(enrollmentRouter);
+app.use(courseRouter);
+app.use(attendanceRouter);
+app.use(paymentRouter);
+app.use(notificationRouter);
 
 //connect to mongodb
 
@@ -433,18 +446,18 @@ app.post(
   }
 );
 
-app.get("/courses", async (req, res) => {
-  // to get the courses in the student course section
-  const courses = await Course.find();
-  res.json(courses);
-});
+// app.get("/courses", async (req, res) => {
+//   // to get the courses in the student course section
+//   const courses = await Course.find();
+//   res.json(courses);
+// });
 
-app.get("/course/:id", async (req, res) => {
-  // navigate to the course details page
-  const { id } = req.params;
-  const course = await Course.findById(id);
-  res.json(course);
-});
+// app.get("/course/:id", async (req, res) => {
+//   // navigate to the course details page
+//   const { id } = req.params;
+//   const course = await Course.findById(id);
+//   res.json(course);
+// });
 
 app.use(express.urlencoded({ extended: true }));
 app.use(multerMiddleware);
@@ -491,25 +504,25 @@ app.post("/SendPassword", SendPassword);
 app.get("/DashboardCount", DashboardCount);
 app.post("/Search", Search);
 app.put("/editProfile/:id", Editprofile);
-app.post("/addCourses", AddCourses);
-app.put("/editCourses/:id", editCourses);
-app.post("/enrollment", userEnrollment);
+// app.post("/addCourses", AddCourses);
+// app.put("/editCourses/:id", editCourses);
 // app.post("/enrollment", userEnrollment);
-app.get(
-  "/getEnrollment",
-  AuthGuard(["user", "instructor", "admin"]),
-  getEnrollment
-);
-app.get("/getEnrollmentId/:id", getEnrollmentById);
-app.get("/oneEnrollmentUser/:enrollmentId", oneEnrollmentUser);
-app.get("/countEnrollment", countEnrollment);
-app.patch("/enrollment/:id", updateEnrollment);
-app.post("/attendance", Attendancetracking);
-app.get("/getAttendance/:enrollmentId", getAttendance);
-app.post("/paymentTracking", PaymentTracking);
-app.get("/getPaymentData/:enrollmentId", getPaymentData);
-app.post("/addNotification", addNotification);
-app.get("/getNotification", getNotification);
+// app.post("/enrollment", userEnrollment);
+// app.get(
+//   "/getEnrollment",
+//   AuthGuard(["user", "instructor", "admin"]),
+//   getEnrollment
+// );
+// app.get("/getEnrollmentId/:id", getEnrollmentById);
+// app.get("/oneEnrollmentUser/:enrollmentId", oneEnrollmentUser);
+// app.get("/countEnrollment", countEnrollment);
+// app.patch("/enrollment/:id", updateEnrollment);
+// app.post("/attendance", Attendancetracking);
+// app.get("/getAttendance/:enrollmentId", getAttendance);
+// app.post("/paymentTracking", PaymentTracking);
+// app.get("/getPaymentData/:enrollmentId", getPaymentData);
+// app.post("/addNotification", addNotification);
+// app.get("/getNotification", getNotification);
 
 // Create //post request
 // Read //get request

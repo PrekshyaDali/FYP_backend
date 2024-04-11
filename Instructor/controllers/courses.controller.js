@@ -1,6 +1,6 @@
 //
 
-const Course = require("../model/CourseSchema");
+const Course = require("../../model/CourseSchema");
 const mongoose = require("mongoose");
 
 const validateInput = (
@@ -88,11 +88,10 @@ const editCourses = async (req, res) => {
   try {
     const courseId = req.params.id;
     const updatedFields = req.body;
-    if(req.file){
+    if (req.file) {
       updatedFields.image = `http://localhost:3001/uploads/${req.file.filename}`;
     }
-    console.log(updatedFields, courseId)
-
+    console.log(updatedFields, courseId);
 
     // Fetch the original course data to compare against for validation
     const originalCourse = await Course.findById(courseId);
@@ -128,7 +127,25 @@ const editCourses = async (req, res) => {
   }
 };
 
-module.exports = {
+const getCourses =  async (req, res) => {
+  // to get the courses in the student course section
+  const courses = await Course.find();
+  res.json(courses);
+};
+
+
+const getCoursesById =  async (req, res) => {
+  // navigate to the course details page
+  const { id } = req.params;
+  const course = await Course.findById(id);
+  res.json(course);
+};
+
+const courseController = {
   AddCourses,
   editCourses,
+  getCourses,
+  getCoursesById,
 };
+module.exports = courseController;
+  

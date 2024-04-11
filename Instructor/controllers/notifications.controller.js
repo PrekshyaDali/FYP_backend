@@ -1,8 +1,8 @@
-const Notification = require("./NotificationSchema");
+const Notification = require("../../model/NotificationSchema");
 const moment = require("moment-timezone");
-const sendEmail = require("../utils/email.utils");
+const sendEmail = require("../../utils/email.utils");
 const nodemailer = require("nodemailer");
-const User = require("../model/userSchema");
+const User = require("../../model/userSchema");
 
 EMAIL = "prekshyashrestha0@gmail.com";
 PASSWORD = "iwcl jjga kfgi ozog";
@@ -67,4 +67,9 @@ const getNotification = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
-module.exports = { addNotification, getNotification };
+
+const notificationController = {
+  addNotification,
+  getNotification,
+};
+module.exports = notificationController;
