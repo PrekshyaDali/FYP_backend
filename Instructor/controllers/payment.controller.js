@@ -1,5 +1,5 @@
-const Payment = require("./PaymentSchema");
-const Enrollment = require("./EnrollmentSchema");
+const Payment = require("../../model/PaymentSchema");
+const Enrollment = require("../../model/EnrollmentSchema");
 
 const PaymentTracking = async (req, res) => {
   const { paymentType, paidAmount, enrollmentId } = req.body;
@@ -16,7 +16,7 @@ const PaymentTracking = async (req, res) => {
 
     // Calculate dueAmount
     let dueAmount = enrollment.remainingAmount - paidAmount;
-    console.log(dueAmount)
+    console.log(dueAmount);
 
     // Ensure dueAmount doesn't go negative
     if (dueAmount < 0) {
@@ -53,20 +53,24 @@ const PaymentTracking = async (req, res) => {
   }
 };
 
-
-const getPaymentData = async(req, res)=>{
-  const {enrollmentId} = req.params;
-  try{
+const getPaymentData = async (req, res) => {
+  const { enrollmentId } = req.params;
+  try {
     const enrollment = await Enrollment.findById(enrollmentId);
-    if(!enrollment){
-      return res.status(404).json({error: "Enrollment not found"});
+    if (!enrollment) {
+      return res.status(404).json({ error: "Enrollment not found" });
     }
-    const payments = await Payment.find({enrollment: enrollmentId});
-    return res.status(200).json({payments});
-  }catch(error){
-    return res.status(500).json({error: "Internal server error", message: error.message});
+    const payments = await Payment.find({ enrollment: enrollmentId });
+    return res.status(200).json({ payments });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ error: "Internal server error", message: error.message });
   }
+};
 
+const paymentController = {
+  PaymentTracking,
+  getPaymentData,
 }
-
-module.exports = {PaymentTracking, getPaymentData};
+module.exports = paymentController;

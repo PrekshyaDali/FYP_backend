@@ -1,5 +1,5 @@
 const User = require("./model/userSchema");
-const sendEmail = require("./Otp/email.utils");
+const sendEmail = require("./utils/email.utils");
 const sendResetLink = require("./reset.utils");
 
 const ForgetPassword = async (req, res) => {

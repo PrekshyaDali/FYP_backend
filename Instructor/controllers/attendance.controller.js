@@ -1,5 +1,5 @@
-const Attendance = require("./AttendanceSchema");
-const Enrollment = require("./EnrollmentSchema");
+const Attendance = require("../../model/AttendanceSchema");
+const Enrollment = require("../../model/EnrollmentSchema");
 
 // Route handler for marking attendance and calculating remaining days
 const Attendancetracking = async (req, res) => {
@@ -27,11 +27,9 @@ const Attendancetracking = async (req, res) => {
 
     // Check if remaining days are 0
     if (remainingDays === 0 || remainingDays < 0) {
-      return res
-        .status(403)
-        .json({
-          error: "Attendance cannot be recorded, course already completed",
-        });
+      return res.status(403).json({
+        error: "Attendance cannot be recorded, course already completed",
+      });
     }
 
     // Create new attendance record
@@ -85,4 +83,8 @@ const getAttendance = async (req, res) => {
   }
 };
 
-module.exports = { Attendancetracking, getAttendance };
+const attendanceController = {
+  Attendancetracking,
+  getAttendance,
+};
+module.exports = attendanceController;

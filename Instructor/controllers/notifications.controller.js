@@ -1,8 +1,8 @@
-const Notification = require("./NotificationSchema");
+const Notification = require("../../model/NotificationSchema");
 const moment = require("moment-timezone");
-const sendEmail = require("../Otp/email.utils");
+const sendEmail = require("../../utils/email.utils");
 const nodemailer = require("nodemailer");
-const User = require("../model/userSchema");
+const User = require("../../model/userSchema");
 
 EMAIL = "prekshyashrestha0@gmail.com";
 PASSWORD = "iwcl jjga kfgi ozog";
@@ -29,7 +29,7 @@ const addNotification = async (req, res) => {
     users.forEach(async (user) => {
       const formattedDate = moment(nepaliTime).format("YYYY-MM-DD hh:mm:ss A");
       // Prepare HTML content for the email
-    const htmlContent = `
+      const htmlContent = `
         <p>Dear ${user.firstname},</p>
         <p>${notification}</p>
         <div>
@@ -67,4 +67,9 @@ const getNotification = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
-module.exports = { addNotification, getNotification };
+
+const notificationController = {
+  addNotification,
+  getNotification,
+};
+module.exports = notificationController;
