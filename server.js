@@ -6,8 +6,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("./model/userSchema");
 const Course = require("./model/CourseSchema");
-const sendOtp = require("./utils/user.js");
-const verifyOtp = require("./utils/Emailverify.js");
+
 const sendEmail = require("./utils/email.utils.js");
 sendResetLink = require("./reset.utils");
 const ForgetPassword = require("./Forgetpassword");
@@ -21,6 +20,7 @@ const courseRouter = require("./Instructor/routes/courses.router.js");
 const attendanceRouter = require("./Instructor/routes/attendance.router.js");
 const paymentRouter = require("./Instructor/routes/payment.router.js");
 const notificationRouter = require("./Instructor/routes/notification.router.js");
+const esewaRouter = require("./Instructor/routes/esewa.router.js");
 
 const {
   PaymentTracking,
@@ -62,6 +62,7 @@ require("dotenv").config();
 const SECRET_KEY = "secretkey";
 //connect to express app
 const app = express();
+app.use(express.json());
 //middleware
 app.use(bodyParser.json());
 app.use(cors());
@@ -72,6 +73,7 @@ app.use(courseRouter);
 app.use(attendanceRouter);
 app.use(paymentRouter);
 app.use(notificationRouter);
+app.use(esewaRouter);
 
 //connect to mongodb
 
