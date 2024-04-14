@@ -140,12 +140,24 @@ const getCoursesById =  async (req, res) => {
   const course = await Course.findById(id);
   res.json(course);
 };
+const deleteCourse = async(req, res)=>{
+ try{
+   const {id} = req.params;
+  const course = await Course.findByIdAndDelete(id);
+  res.status(200).json({message: "Deleted Successfully", course});
+ }
+  catch(error){
+    res.status(500).json({error: "Couldn't delete course", message: error.message});
+  }
+  
+}
 
 const courseController = {
   AddCourses,
   editCourses,
   getCourses,
   getCoursesById,
+  deleteCourse
 };
 module.exports = courseController;
   
