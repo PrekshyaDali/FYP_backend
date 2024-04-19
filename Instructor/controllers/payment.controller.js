@@ -2,15 +2,14 @@ const Payment = require("../../model/PaymentSchema");
 const Enrollment = require("../../model/EnrollmentSchema");
 
 const PaymentTracking = async (req, res) => {
-  const { paymentType, paidAmount, enrollmentId } = req.body;
-  
+    const { paymentType, paidAmount, enrollmentId } = req.body;
+
   try {
     const enrollment = await Enrollment.findById(enrollmentId);
 
     if (!enrollment) {
       return res.status(404).json({ error: "Enrollment not found" });
     }
-
     // Initialize remainingAmount to packageAmount if not already set
     if (enrollment.remainingAmount === null) {
       enrollment.remainingAmount = enrollment.price;
@@ -74,5 +73,5 @@ const getPaymentData = async (req, res) => {
 const paymentController = {
   PaymentTracking,
   getPaymentData,
-}
+};
 module.exports = paymentController;
