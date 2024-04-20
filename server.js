@@ -21,27 +21,8 @@ const attendanceRouter = require("./Instructor/routes/attendance.router.js");
 const paymentRouter = require("./Instructor/routes/payment.router.js");
 const notificationRouter = require("./Instructor/routes/notification.router.js");
 const esewaRouter = require("./Instructor/routes/esewa.router.js");
+const regularCustomerRouter = require("./Instructor/routes/regularCustomer.router.js");
 
-const {
-  PaymentTracking,
-  getPaymentData,
-} = require("./Instructor/controllers/payment.controller.js");
-const {
-  userEnrollment,
-  getEnrollment,
-  updateEnrollment,
-  getEnrollmentById,
-  countEnrollment,
-  oneEnrollmentUser,
-} = require("./Instructor/controllers/enrollment.controller.js");
-const {
-  editCourses,
-  AddCourses,
-} = require("./Instructor/controllers/courses.controller.js");
-const {
-  addNotification,
-  getNotification,
-} = require("./Instructor/controllers/notifications.controller.js");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
@@ -74,6 +55,7 @@ app.use(attendanceRouter);
 app.use(paymentRouter);
 app.use(notificationRouter);
 app.use(esewaRouter);
+app.use(regularCustomerRouter);
 
 //connect to mongodb
 
@@ -121,7 +103,6 @@ const checkAdmin = async () => {
 
 checkAdmin();
 
-// app.post("/register", async (req, res) => {
 //   // register the users
 //   try {
 //     console.log(req.body);
@@ -256,125 +237,6 @@ app.post("/registerInstructor", async (req, res) => {
   }
 });
 
-// app.post("/login", async (req, res) => {
-//   // to login
-//   try {
-//     const { email, password } = req.body;
-//     const user = await User.findOne({ email });
-
-//     if (!user) {
-//       return res.status(401).json({ error: "No user found" });
-//     }
-//     const isVerified = user.isVerified;
-//     if (!isVerified) {
-//       return res
-//         .status(404)
-//         .json({ error: "User not verified, Please verify your email" });
-//     }
-//     const isPasswordValid = await bcrypt.compare(password, user.password);
-//     if (!isPasswordValid) {
-//       return res.status(401).json({ error: "Password not valid" });
-//     }
-
-//     const userPayload = { email: user.email, role: user.role, id: user._id };
-
-//     const accessToken = jwt.sign(userPayload, process.env.ACCESS_TOKEN_SECRET);
-//     // console.log(accessToken);
-
-//     return res.status(200).json({
-//       message: "Login successfull",
-//       email: user.email,
-//       role: user.role,
-//       isFirstLogin: user.isFirstLogin,
-//       id: user._id,
-//       accessToken,
-//     });
-//   } catch (error) {
-//     res.status(500).json({ error: "Error logging in" });
-//   }
-// });
-
-// app.get("/users", async (req, res) => {
-//   try {
-//     // Get the list of users
-//     const users = await User.find(
-//       { role: "user" },
-//       { email: 1, firstname: 1, lastname: 1, contactnumber: 1, _id: 1 }
-//     );
-
-//     // Iterate over each user and check if they are enrolled in any course
-//     for (let i = 0; i < users.length; i++) {
-//       const user = users[i];
-//       // Find course enrollments for the current user
-//       const courseEnrollments = await Enrollment.find({ user: user._id });
-
-//       // If user has any course enrollments, set enrolled to true; otherwise, set it to false
-//       user.enrolled = courseEnrollments.length > 0;
-//     }
-
-//     // Send the response
-//     return res.json(users);
-//   } catch (error) {
-//     // Handle errors
-//     return res.status(500).json({ error: "Internal server error" });
-//   }
-// });
-
-// app.get("/users/:id", async (req, res) => {
-//   // to dispplay the information for edit  of admin student table
-//   try {
-//     const { id } = req.params;
-
-//     const user = await User.findById(id).select("-password");
-//     return res.json(user);
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).json({ error: "Internal server error" });
-//   }
-// });
-
-// app.put("/edit/:id", async (req, res) => {
-//   const userId = req.params.id;
-//   const allowedFields = ["firstname", "lastname", "email", "contactnumber"]; // Define allowed fields
-
-//   try {
-//     // Find the user by ID in the database
-//     let user = await User.findById(userId);
-
-//     if (!user) {
-//       return res.status(404).json({ error: "User not found" });
-//     }
-
-//     // Update only allowed fields present in the request body
-//     allowedFields.forEach((field) => {
-//       if (req.body[field] !== undefined) {
-//         user[field] = req.body[field];
-//       }
-//     });
-
-//     // Save the updated user information to the database
-//     user = await user.save();
-
-//     // Return the updated user information in the response
-//     return res.json(user);
-//   } catch (error) {
-//     console.error("Failed to update user:", error);
-//     return res.status(500).json({ error: "Failed to update user" });
-//   }
-// });
-
-// app.delete("/user/:id", async (req, res) => {
-//   // for the delete user of admin student table
-//   try {
-//     const { id } = req.params;
-//     const user = await User.findByIdAndDelete(id);
-//     return res.status(200).json({ message: "User deleted successfully" });
-//   } catch (error) {
-//     console.error("Error deleting user:", error);
-//     return res.status(500).json({ error: "Error deleting user" });
-//   }
-// });
-
 app.get("/instructors", async (req, res) => {
   // to get the instructor list of admin instructor table
   const instructors = await User.find(
@@ -448,19 +310,6 @@ app.post(
   }
 );
 
-// app.get("/courses", async (req, res) => {
-//   // to get the courses in the student course section
-//   const courses = await Course.find();
-//   res.json(courses);
-// });
-
-// app.get("/course/:id", async (req, res) => {
-//   // navigate to the course details page
-//   const { id } = req.params;
-//   const course = await Course.findById(id);
-//   res.json(course);
-// });
-
 app.use(express.urlencoded({ extended: true }));
 app.use(multerMiddleware);
 
@@ -492,41 +341,15 @@ app.get("/uploads/:filename", async (req, res) => {
     const file = await fs.promises.readFile(
       path.join(__dirname, "uploads", fileName)
     );
-    
+
     res.status(200).send(file);
-  } catch(error) {
+  } catch (error) {
     console.log(error);
   }
 });
 
-// app.post("/sendotp", sendOtp);
-// app.post("/verifyotp", verifyOtp);
 app.post("/ForgetPassword", ForgetPassword);
 app.post("/SendPassword", SendPassword);
 app.get("/DashboardCount", DashboardCount);
 app.post("/Search", Search);
 app.put("/editProfile/:id", Editprofile);
-// app.post("/addCourses", AddCourses);
-// app.put("/editCourses/:id", editCourses);
-// app.post("/enrollment", userEnrollment);
-// app.post("/enrollment", userEnrollment);
-// app.get(
-//   "/getEnrollment",
-//   AuthGuard(["user", "instructor", "admin"]),
-//   getEnrollment
-// );
-// app.get("/getEnrollmentId/:id", getEnrollmentById);
-// app.get("/oneEnrollmentUser/:enrollmentId", oneEnrollmentUser);
-// app.get("/countEnrollment", countEnrollment);
-// app.patch("/enrollment/:id", updateEnrollment);
-// app.post("/attendance", Attendancetracking);
-// app.get("/getAttendance/:enrollmentId", getAttendance);
-// app.post("/paymentTracking", PaymentTracking);
-// app.get("/getPaymentData/:enrollmentId", getPaymentData);
-// app.post("/addNotification", addNotification);
-// app.get("/getNotification", getNotification);
-
-// Create //post request
-// Read //get request
-// Update //put or patch request
-// Delete //delete request
