@@ -1,3 +1,4 @@
+const e = require("express");
 const Attendance = require("../../model/AttendanceSchema");
 const Enrollment = require("../../model/EnrollmentSchema");
 
@@ -56,24 +57,20 @@ const Attendancetracking = async (req, res) => {
 const getAttendance = async (req, res) => {
   try {
     const { enrollmentId } = req.params;
-
-    // Fetch the enrollment data to get the start date
     const enrollment = await Enrollment.findById(enrollmentId);
     if (!enrollment) {
       return res.status(404).json({ error: "Enrollment not found" });
     }
 
-    // Fetch attendance data for the given enrollment
     const attendance = await Attendance.find({ enrollment: enrollmentId });
 
-    // Calculate remaining days based on enrollment start date and current date
     const startDateObj = new Date(enrollment.startdate);
     const endDateObj = new Date();
     const presentDaysCount = await Attendance.countDocuments({
       enrollment: enrollmentId,
       date: { $gte: startDateObj, $lte: endDateObj },
     });
-    const courseDuration = 30;
+    const courseDuration = enrollment.duration;
     const remainingDays = courseDuration - presentDaysCount;
 
     res.status(200).json({ attendance, remainingDays });
