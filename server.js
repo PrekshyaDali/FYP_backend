@@ -492,9 +492,9 @@ app.get("/uploads/:filename", async (req, res) => {
     const file = await fs.promises.readFile(
       path.join(__dirname, "uploads", fileName)
     );
-
+    
     res.status(200).send(file);
-  } catch {
+  } catch(error) {
     console.log(error);
   }
 });
