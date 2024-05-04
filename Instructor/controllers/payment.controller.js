@@ -2,7 +2,7 @@ const Payment = require("../../model/PaymentSchema");
 const Enrollment = require("../../model/EnrollmentSchema");
 
 const PaymentTracking = async (req, res) => {
-    const { paymentType, paidAmount, enrollmentId } = req.body;
+    const {  paidAmount, enrollmentId } = req.body;
 
   try {
     const enrollment = await Enrollment.findById(enrollmentId);
@@ -28,7 +28,7 @@ const PaymentTracking = async (req, res) => {
 
     // Create new payment
     const payment = new Payment({
-      paymentType,
+      // paymentType,
       paidAmount,
       dueAmount,
       enrollment: enrollmentId,
@@ -56,19 +56,36 @@ const PaymentTracking = async (req, res) => {
 
 const getPaymentData = async (req, res) => {
   const { enrollmentId } = req.params;
+
   try {
+    // Fetch the enrollment to ensure it exists
     const enrollment = await Enrollment.findById(enrollmentId);
     if (!enrollment) {
       return res.status(404).json({ error: "Enrollment not found" });
     }
+
+    // Fetch all payments associated with the enrollment
     const payments = await Payment.find({ enrollment: enrollmentId });
-    return res.status(200).json({ payments });
+
+    // Update the payments with a derived field 'paymentType'
+    const paymentsWithPaymentType = payments.map((payment) => {
+      const paymentType = payment.dueAmount === 0 ? "complete" : "incomplete";
+      return {
+        ...payment.toObject(), // Converts mongoose document to plain object
+        paymentType,
+      };
+    });
+
+    // Return the payments with the derived 'paymentType'
+    return res.status(200).json({ payments: paymentsWithPaymentType });
   } catch (error) {
+    // Handle any errors during the request processing
     return res
       .status(500)
       .json({ error: "Internal server error", message: error.message });
   }
 };
+
 
 const paymentController = {
   PaymentTracking,
