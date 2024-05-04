@@ -60,7 +60,11 @@ const addNotification = async (req, res) => {
 
 const getNotification = async (req, res) => {
   try {
-    const notifications = await Notification.find().sort({ date: -1 });
+    const tenDaysAgo = new Date();
+    tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
+    const notifications = await Notification.find({
+      date: { $gte: tenDaysAgo },
+    }).sort({ date: -1 });
 
     res.status(200).json({ success: true, data: notifications });
   } catch (error) {

@@ -34,10 +34,9 @@ const EditProfile = async (req, res) => {
     user.lastname = lastname;
     user.address = address;
     console.log(req.file, user.image);
-    // Check if there is a file in the request
+
     if (req.file) {
-      // Assuming the file is an image
-      // Update the user's image field with the filename
+   
       user.image = `http://localhost:3001/uploads/${req.file.filename}`;
     }
 

@@ -8,6 +8,7 @@ const regularCustomerTracking = async (req, res) => {
       duration,
       category,
     });
+    
     await newRegularCustomer.save();
     res
       .status(200)
@@ -19,7 +20,19 @@ const regularCustomerTracking = async (req, res) => {
 
 const getRegularCustomer = async (req, res) => {
   try {
-    const regularCustomer = await RegularCustomers.find();
+    // Get the current date and set it to the start of the day
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Start of the day
+
+    // Create the end of the day
+    const endOfDay = new Date(today);
+    endOfDay.setHours(23, 59, 59, 999); // End of the day
+
+    // Fetch records with a date within the boundaries
+    const regularCustomer = await RegularCustomers.find({
+      date: { $gte: today, $lte: endOfDay },
+    });
+
     res.status(200).json({ success: true, regularCustomer });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
