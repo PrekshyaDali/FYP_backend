@@ -1,15 +1,25 @@
 const RegularCustomers = require("../../model/RegularCustomer.Schema");
-
+const Finance = require("../../model/FinanceSchema");
 const regularCustomerTracking = async (req, res) => {
   try {
-    const { amount, duration, category } = req.body;
+    const { amount, duration, category, customerName } = req.body;
     const newRegularCustomer = new RegularCustomers({
       amount,
       duration,
       category,
+      customerName,
     });
-    
+
     await newRegularCustomer.save();
+    const newFinance = new Finance({
+      source: "Regular Customer",
+      amount: amount,
+      date: new Date(),
+      customerName: customerName,
+      paymentMethod: "In House",
+      status: "Paid",
+    });
+    await newFinance.save();
     res
       .status(200)
       .json({ success: true, message: "Regular customer added successfully" });
@@ -40,6 +50,6 @@ const getRegularCustomer = async (req, res) => {
 };
 const regularCustomersController = {
   regularCustomerTracking,
-    getRegularCustomer,
+  getRegularCustomer,
 };
 module.exports = regularCustomersController;

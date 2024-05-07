@@ -1,8 +1,9 @@
 const Payment = require("../../model/PaymentSchema");
 const Enrollment = require("../../model/EnrollmentSchema");
+const Finance = require("../../model/FinanceSchema");
 
 const PaymentTracking = async (req, res) => {
-    const {  paidAmount, enrollmentId } = req.body;
+  const { paidAmount, enrollmentId } = req.body;
 
   try {
     const enrollment = await Enrollment.findById(enrollmentId);
@@ -33,6 +34,15 @@ const PaymentTracking = async (req, res) => {
       dueAmount,
       enrollment: enrollmentId,
     });
+    const newFinance = new Finance({
+      source: "Courses",
+      amount: paidAmount,
+      date: new Date(),
+      customerName: "Demo",
+      paymentMethod: "In House",
+      status: "Paid",
+    });
+    await newFinance.save();
 
     // Update remainingAmount
     enrollment.remainingAmount = dueAmount;
@@ -85,7 +95,6 @@ const getPaymentData = async (req, res) => {
       .json({ error: "Internal server error", message: error.message });
   }
 };
-
 
 const paymentController = {
   PaymentTracking,

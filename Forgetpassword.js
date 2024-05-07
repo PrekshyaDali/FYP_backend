@@ -18,15 +18,15 @@ const ForgetPassword = async (req, res) => {
         message: "User not found",
       });
     }
-    const resetToken = crypto.randomBytes(20).toString("hex");
+    // const resetToken = crypto.randomBytes(20).toString("hex");
 
-    const expiresAt = new Date(Date.now() + 3600000);
-    // Save the token in the database
-    await PasswordResetToken.create({
-      email,
-      token: resetToken,
-      expiresAt,
-    });
+    // const expiresAt = new Date(Date.now() + 3600000);
+    // // Save the token in the database
+    // await PasswordResetToken.create({
+    //   email,
+    //   token: resetToken,
+    //   expiresAt,
+    // });
 
     await sendResetLink(
       updatedUser.link,
@@ -45,5 +45,7 @@ const ForgetPassword = async (req, res) => {
     });
   }
 };
+
+
 
 module.exports = ForgetPassword;
