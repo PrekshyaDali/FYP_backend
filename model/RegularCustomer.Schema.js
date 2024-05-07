@@ -20,6 +20,11 @@ const regularCustomerSchema = new Schema({
     type: String,
     enum: ["Car", "Bike", "Scooter"],
   },
+  customerName:{
+    type: String,
+    required: true,
+  
+  }
 });
 
 const RegularCustomers = mongoose.model(
