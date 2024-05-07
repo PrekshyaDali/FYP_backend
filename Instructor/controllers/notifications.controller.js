@@ -1,13 +1,14 @@
-const Notification = require("../../model/NotificationSchema");
 const moment = require("moment-timezone");
-const sendEmail = require("../../utils/email.utils");
-const nodemailer = require("nodemailer");
+const Notification = require("../../model/NotificationSchema");
 const User = require("../../model/userSchema");
+const sendEmail = require("../../utils/email.utils");
 
-EMAIL = "prekshyashrestha0@gmail.com";
-PASSWORD = "iwcl jjga kfgi ozog";
+const EMAIL = "example@gmail.com";
+const PASSWORD = "your_password";
 
-let transporter = nodemailer.createTransport({
+const nodemailer = require("nodemailer");
+
+const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: EMAIL,
@@ -17,41 +18,27 @@ let transporter = nodemailer.createTransport({
 
 const addNotification = async (req, res) => {
   try {
-    const { notification } = req.body;
-    const nepaliTime = moment.tz(Date.now(), "Asia/Kathmandu").format();
-    const msg = new Notification({ notification, date: nepaliTime });
-    await msg.save();
+    const { notification, expires_at } = req.body;
 
-    // Fetch all existing users
-    const users = await User.find();
+    const fullDateFormat = "YYYY-MM-DD hh:mm A"; // Include AM/PM
 
-    // Loop through each user and send email
-    users.forEach(async (user) => {
-      const formattedDate = moment(nepaliTime).format("YYYY-MM-DD hh:mm:ss A");
-      // Prepare HTML content for the email
-      const htmlContent = `
-        <p>Dear ${user.firstname},</p>
-        <p>${notification}</p>
-        <div>
-          <p>Regards,</p>
-          <p>Drive Sync</p>
-        </div>
-      `;
-      // Send email to the user
-      await sendEmail(
-        null,
-        "DriveSync",
-        "Your message here",
-        htmlContent,
-        user.email
-      );
+    // Get current time in Nepali timezone
+    const createdDate = moment.tz("Asia/Kathmandu").format(fullDateFormat);
+
+    const msg = new Notification({
+      notification,
+      created_at: moment(createdDate, fullDateFormat).toDate(), // With AM/PM
+      expires_at: moment(expires_at, "YYYY-MM-DD").toDate(),
     });
+
+    await msg.save();
 
     res.status(200).json({
       success: true,
       message: "Notification saved successfully",
       notification,
-      date: nepaliTime,
+      created_at: createdDate,
+      expires_at: expires_at,
     });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
@@ -60,13 +47,53 @@ const addNotification = async (req, res) => {
 
 const getNotification = async (req, res) => {
   try {
-    const tenDaysAgo = new Date();
-    tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
+    const currentDate = moment.tz("Asia/Kathmandu").toDate(); // Get current date in Nepali timezone
+
     const notifications = await Notification.find({
-      date: { $gte: tenDaysAgo },
-    }).sort({ date: -1 });
+      created_at: { $lte: currentDate },
+      expires_at: { $gte: currentDate }, // Only get unexpired notifications
+    }).sort({ created_at: -1 }); // Sort by most recent created_at
 
     res.status(200).json({ success: true, data: notifications });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+const getNotificationByWeek = async (req, res) => {
+  try {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const notifications = await Notification.find({
+      created_at: { $gte: sevenDaysAgo },
+    }).sort({ created_at: -1 });
+    res.status(200).json({ success: true, data: notifications });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+
+
+const showNotificationToAdmin = async (req, res) => {
+  try {
+    // Fetch all notifications sorted by creation date (most recent first)
+    const notifications = await Notification.find().sort({ created_at: -1 });
+
+    // Format created_at and expires_at with a specific date/time format
+    const formattedNotifications = notifications.map((notification) => {
+      return {
+        ...notification.toObject(), // Convert Mongoose document to plain object
+        created_at: moment
+          .tz(notification.created_at, "Asia/Kathmandu")
+          .format("YYYY-MM-DD hh:mm A"), // Include AM/PM
+        expires_at: moment
+          .tz(notification.expires_at, "Asia/Kathmandu")
+          .format("YYYY-MM-DD"), // Format as YYYY-MM-DD
+      };
+    });
+
+    res.status(200).json({ success: true, data: formattedNotifications });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
@@ -75,5 +102,7 @@ const getNotification = async (req, res) => {
 const notificationController = {
   addNotification,
   getNotification,
+  getNotificationByWeek,
+  showNotificationToAdmin
 };
 module.exports = notificationController;
