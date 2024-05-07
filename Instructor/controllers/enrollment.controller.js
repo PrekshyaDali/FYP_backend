@@ -65,8 +65,17 @@ const userEnrollment = async (req, res) => {
       "We have recieved your enrollment, Enrollment!!!",
       "Enrollment successful",
       "Your enrollment has been successful",
-      `<h1>Your enrollment has been successful</h1>
-      <p>Thank you for enrolling in our course</p>`,
+    `
+      <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; border: 1px solid #ccc; border-radius: 10px; background-color: #f9f9f9;">
+        <h2 style="color: #333;">Enrollment Successful!</h2>
+        <p style="color: #666;">Thank you for enrolling in our course. We're excited to have you on board!</p>
+        <p style="color: #666;">If you have any questions, please contact us at any time.</p>
+        <p style="color: #666; text-align: right;">
+          Regards,<br />
+          <strong style="color: #333;">DriveSync Team</strong>
+        </p>
+      </div>
+    `,
       email
     );
   } catch (error) {
