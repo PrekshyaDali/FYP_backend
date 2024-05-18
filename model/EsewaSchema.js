@@ -16,6 +16,12 @@ const EsewaSchema = new Schema({
     ref: "User",
     required: true,
   },
+  date: {
+    type: Date,
+    default: Date.now,
+  }
+
+  
 });
 
 module.exports = mongoose.model("Esewa", EsewaSchema);

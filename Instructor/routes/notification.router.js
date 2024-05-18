@@ -6,5 +6,6 @@ router.post("/addNotification", notificationController.addNotification);
 router.get("/getNotification", notificationController.getNotification);
 router.get("/getNotificationByWeek", notificationController.getNotificationByWeek);
 router.get("/showNotificationToAdmin", notificationController.showNotificationToAdmin);
+router.delete("/deleteNotifications", notificationController.deleteNotifications);
 
 module.exports = router;

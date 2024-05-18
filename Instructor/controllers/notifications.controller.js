@@ -99,10 +99,22 @@ const showNotificationToAdmin = async (req, res) => {
   }
 };
 
+const deleteNotifications = async (req, res) => {
+  try {
+    const ids = req.body.ids; // Array of notification IDs to delete
+    await Notification.deleteMany({ _id: { $in: ids } });
+    res
+      .status(200)
+      .json({ success: true, message: "Notifications deleted successfully" });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
 const notificationController = {
   addNotification,
   getNotification,
   getNotificationByWeek,
-  showNotificationToAdmin
+  showNotificationToAdmin,
+  deleteNotifications,
 };
 module.exports = notificationController;
