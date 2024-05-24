@@ -17,8 +17,18 @@ const addVehicle = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
+const getVehicle = async (req, res) => {
+  try {
+    const vehicle = await Vehicle.find();
+    res.status(200).json({ message: "Vehicle fetched successfully", vehicle });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 const vehicleController = {
-    addVehicle,
-    };
+  addVehicle,
+  getVehicle,
+};
 
 module.exports = vehicleController;
