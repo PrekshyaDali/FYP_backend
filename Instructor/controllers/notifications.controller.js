@@ -2,11 +2,10 @@ const moment = require("moment-timezone");
 const Notification = require("../../model/NotificationSchema");
 const User = require("../../model/userSchema");
 const sendEmail = require("../../utils/email.utils");
+const nodemailer = require("nodemailer");
 
 const EMAIL = "example@gmail.com";
 const PASSWORD = "your_password";
-
-const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -19,10 +18,7 @@ const transporter = nodemailer.createTransport({
 const addNotification = async (req, res) => {
   try {
     const { notification, expires_at } = req.body;
-
     const fullDateFormat = "YYYY-MM-DD hh:mm A"; // Include AM/PM
-
-    // Get current time in Nepali timezone
     const createdDate = moment.tz("Asia/Kathmandu").format(fullDateFormat);
 
     const msg = new Notification({
@@ -48,11 +44,10 @@ const addNotification = async (req, res) => {
 const getNotification = async (req, res) => {
   try {
     const currentDate = moment.tz("Asia/Kathmandu").toDate(); // Get current date in Nepali timezone
-
     const notifications = await Notification.find({
       created_at: { $lte: currentDate },
-      expires_at: { $gte: currentDate }, // Only get unexpired notifications
-    }).sort({ created_at: -1 }); // Sort by most recent created_at
+      expires_at: { $gte: currentDate },
+    }).sort({ created_at: -1 });
 
     res.status(200).json({ success: true, data: notifications });
   } catch (error) {
@@ -73,25 +68,18 @@ const getNotificationByWeek = async (req, res) => {
   }
 };
 
-
-
 const showNotificationToAdmin = async (req, res) => {
   try {
-    // Fetch all notifications sorted by creation date (most recent first)
     const notifications = await Notification.find().sort({ created_at: -1 });
-
-    // Format created_at and expires_at with a specific date/time format
-    const formattedNotifications = notifications.map((notification) => {
-      return {
-        ...notification.toObject(), // Convert Mongoose document to plain object
-        created_at: moment
-          .tz(notification.created_at, "Asia/Kathmandu")
-          .format("YYYY-MM-DD hh:mm A"), // Include AM/PM
-        expires_at: moment
-          .tz(notification.expires_at, "Asia/Kathmandu")
-          .format("YYYY-MM-DD"), // Format as YYYY-MM-DD
-      };
-    });
+    const formattedNotifications = notifications.map((notification) => ({
+      ...notification.toObject(),
+      created_at: moment
+        .tz(notification.created_at, "Asia/Kathmandu")
+        .format("YYYY-MM-DD hh:mm A"),
+      expires_at: moment
+        .tz(notification.expires_at, "Asia/Kathmandu")
+        .format("YYYY-MM-DD"),
+    }));
 
     res.status(200).json({ success: true, data: formattedNotifications });
   } catch (error) {
@@ -101,8 +89,10 @@ const showNotificationToAdmin = async (req, res) => {
 
 const deleteNotifications = async (req, res) => {
   try {
-    const ids = req.body.ids; // Array of notification IDs to delete
-    await Notification.deleteMany({ _id: { $in: ids } });
+    const ids = req.body.ids;
+    console.log("Received IDs to delete:", ids);
+    const result = await Notification.deleteMany({ _id: { $in: ids } });
+    console.log("Deletion result:", result);
     res
       .status(200)
       .json({ success: true, message: "Notifications deleted successfully" });
@@ -110,6 +100,7 @@ const deleteNotifications = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
 const notificationController = {
   addNotification,
   getNotification,
@@ -117,4 +108,5 @@ const notificationController = {
   showNotificationToAdmin,
   deleteNotifications,
 };
+
 module.exports = notificationController;
