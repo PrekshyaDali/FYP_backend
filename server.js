@@ -23,6 +23,7 @@ const notificationRouter = require("./Instructor/routes/notification.router.js")
 const esewaRouter = require("./Instructor/routes/esewa.router.js");
 const regularCustomerRouter = require("./Instructor/routes/regularCustomer.router.js");
 const vehicleRouter = require("./Instructor/routes/vehicles.router.js");
+const financeRouter = require("./Instructor/routes/finances.router.js");
 
 const multer = require("multer");
 const fs = require("fs");
@@ -58,6 +59,7 @@ app.use(notificationRouter);
 app.use(esewaRouter);
 app.use(regularCustomerRouter);
 app.use(vehicleRouter);
+app.use(financeRouter);
 
 //connect to mongodb
 
