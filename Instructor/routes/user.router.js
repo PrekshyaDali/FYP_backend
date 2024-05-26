@@ -10,4 +10,7 @@ router.get("/users/:id", userController.getUserById);// to show the user informa
 router.put("/edit/:id", userController.editStudentDetails)
 router.delete("/user/:id", userController.deleteUser)
 
+router.post("/forgetpassword", userController.ForgetPassword);
+router.patch("/resetpassword", userController.ResetPassword);
+
 module.exports = router;

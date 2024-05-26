@@ -207,16 +207,14 @@ const getUserById = async (req, res) => {
     const user = await User.findById(id).select("-password");
     console.log(user);
     return res.json(user);
-  
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Internal server error" });
   }
 };
 
-
 // to edit the student details from the admin profile
-const editStudentDetails= async (req, res) => {
+const editStudentDetails = async (req, res) => {
   const userId = req.params.id;
   const allowedFields = ["firstname", "lastname", "email", "contactnumber"]; // Define allowed fields
 
@@ -246,9 +244,8 @@ const editStudentDetails= async (req, res) => {
   }
 };
 
-
 //to delete the user
-const deleteUser =  async (req, res) => {
+const deleteUser = async (req, res) => {
   // for the delete user of admin student table
   try {
     const { id } = req.params;
@@ -260,6 +257,81 @@ const deleteUser =  async (req, res) => {
   }
 };
 
+const ForgetPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({
+        message: "User not found",
+      });
+    }
+
+    // Constructing the reset link with email as a query parameter
+    const link = `http://localhost:3000/Resetpassword/?email=${encodeURIComponent(
+      email
+    )}`;
+
+    // Update user's link field
+    const updatedUser = await User.findByIdAndUpdate(
+      user._id,
+      { link: link },
+      { new: true }
+    );
+
+    // Send reset link via email
+    await sendResetLink(
+      updatedUser.link,
+      "Reset Password from DriveSync",
+      "Please click the link to reset your password",
+      email
+    );
+
+    res.status(200).json({
+      message: "Reset link has been sent to your email",
+    });
+  } catch (error) {
+    console.error("Error while sending reset link:", error); // Log the specific error
+    res.status(400).json({
+      message: "Error while sending reset link",
+    });
+  }
+};
+
+const ResetPassword = async (req, res) => {
+  try {
+    const {  newPassword } = req.body;
+    const { email } = req.query;
+    console.log(email)
+    console.log(req.body)
+
+    // Find the user by email
+    const user = await User.findOne({ email });
+
+    // If user not found, return error
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update user's password
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({
+      message: "Password reset successful",
+    });
+  } catch (error) {
+    console.error("Error resetting password:", error);
+    res.status(500).json({
+      message: "Error resetting password",
+    });
+  }
+};
 
 const userController = {
   register,
@@ -270,5 +342,7 @@ const userController = {
   getUserById,
   editStudentDetails,
   deleteUser,
+  ForgetPassword,
+  ResetPassword,
 };
 module.exports = userController;

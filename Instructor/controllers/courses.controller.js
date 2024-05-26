@@ -87,6 +87,7 @@ const AddCourses = async (req, res) => {
 const editCourses = async (req, res) => {
   try {
     const courseId = req.params.id;
+    console.log(req.body)
     const updatedFields = req.body;
     if (req.file) {
       updatedFields.image = `http://localhost:3001/uploads/${req.file.filename}`;
@@ -106,6 +107,7 @@ const editCourses = async (req, res) => {
       updatedFields.courseDescription || originalCourse.courseDescription,
       updatedFields.image || originalCourse.image
     );
+    console.log(updatedFields);
 
     // Perform the update
     const result = await Course.findOneAndUpdate(
@@ -137,6 +139,12 @@ const getCourses =  async (req, res) => {
 const getCoursesById =  async (req, res) => {
   // navigate to the course details page
   const { id } = req.params;
+
+  if(!mongoose.Types.ObjectId.isValid(id)){
+    return res.status(404).json({message: "Course not found"});
+  }
+
+
   const course = await Course.findById(id);
   res.json(course);
 };

@@ -105,30 +105,7 @@ const getFilteredFinances = async (req, res) => {
     // Fetch finance data based on the constructed filters
     const filteredData = await Finance.find(filters);
 
-    // Create a new PDF document
-    const doc = new PDFDocument();
-    let filename = "finance_data.pdf";
-    filename = encodeURIComponent(filename);
-
-    res.setHeader(
-      "Content-disposition",
-      'attachment; filename="' + filename + '"'
-    );
-    res.setHeader("Content-type", "application/pdf");
-
-    doc.text("Finance Data", { align: "center" });
-
-    filteredData.forEach((item, index) => {
-      doc.text(`\n${index + 1}. Source: ${item.source}`);
-      doc.text(`   Amount: ${item.amount}`);
-      doc.text(`   Date: ${item.date}`);
-      doc.text(`   Customer Name: ${item.customerName}`);
-      doc.text(`   Payment Method: ${item.paymentMethod}`);
-      doc.text(`   Status: ${item.status}`);
-    });
-
-    doc.pipe(res);
-    doc.end();
+    res.status(200).json({ success: true, filteredData });
   } catch (error) {
     // Handle any errors
     res.status(500).json({ success: false, message: error.message });

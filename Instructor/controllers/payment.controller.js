@@ -4,6 +4,7 @@ const Finance = require("../../model/FinanceSchema");
 
 const PaymentTracking = async (req, res) => {
   const { paidAmount, enrollmentId } = req.body;
+  console.log(req.body)
 
   try {
     const enrollment = await Enrollment.findById(enrollmentId);
