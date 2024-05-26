@@ -6,10 +6,11 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("./model/userSchema");
 const Course = require("./model/CourseSchema");
+const morgan = require("morgan");
 
 const sendEmail = require("./utils/email.utils.js");
 sendResetLink = require("./reset.utils");
-const ForgetPassword = require("./Forgetpassword");
+
 const SendPassword = require("./Instructor/SendPassword.js");
 const DashboardCount = require("./model/DashboardCount/DashboardCount.js");
 const Search = require("./model/Search.js");
@@ -24,6 +25,7 @@ const esewaRouter = require("./Instructor/routes/esewa.router.js");
 const regularCustomerRouter = require("./Instructor/routes/regularCustomer.router.js");
 const vehicleRouter = require("./Instructor/routes/vehicles.router.js");
 const financeRouter = require("./Instructor/routes/finances.router.js");
+const customizeRouter = require("./Instructor/routes/customizeCourse.router.js");
 
 const multer = require("multer");
 const fs = require("fs");
@@ -46,6 +48,9 @@ const SECRET_KEY = "secretkey";
 //connect to express app
 const app = express();
 app.use(express.json());
+app.use(morgan("dev"));
+app.use(multerMiddleware);
+
 //middleware
 app.use(bodyParser.json());
 app.use(cors());
@@ -60,6 +65,7 @@ app.use(esewaRouter);
 app.use(regularCustomerRouter);
 app.use(vehicleRouter);
 app.use(financeRouter);
+app.use(customizeRouter);
 
 //connect to mongodb
 
@@ -251,7 +257,6 @@ app.post(
 );
 
 app.use(express.urlencoded({ extended: true }));
-app.use(multerMiddleware);
 
 app.post("/upload", (req, res) => {
   //to upload the img
@@ -288,7 +293,6 @@ app.get("/uploads/:filename", async (req, res) => {
   }
 });
 
-app.post("/ForgetPassword", ForgetPassword);
 app.post("/SendPassword", SendPassword);
 app.get("/DashboardCount", DashboardCount);
 app.post("/Search", Search);

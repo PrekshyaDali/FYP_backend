@@ -14,16 +14,25 @@ const addVehicle = async (req, res) => {
 
     // Check if there is any existing vehicle with the same unique_id in the same category
     const existingVehicle = await Vehicle.findOne({
+       
       category,
       unique_id,
     }).exec();
+    console.log(existingVehicle)
+   
 
     if (existingVehicle) {
+      console.log(existingVehicle);
       return res.status(400).json({
         success: false,
         message: "Vehicle with this unique ID already exists in this category",
         existingVehicle, // Optionally return the existing vehicle information
       });
+    }
+
+    if(existingVehicle === " " || null){
+      console.log("hello")
+
     }
 
     // If no existing vehicle found, create a new vehicle
